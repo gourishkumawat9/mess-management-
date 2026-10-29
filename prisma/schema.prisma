@@ -1,0 +1,151 @@
+// IIM Sambalpur Mess & Canteen
+// SQLite keeps local setup to zero services. To move to PostgreSQL, change the
+// provider below and DATABASE_URL, then run `npx prisma migrate dev`.
+// Enum-like fields are plain strings (SQLite has no enums); the allowed values
+// live in src/lib/constants.ts and are enforced by the API validators.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         String   @default("USER") // USER | STAFF | ADMIN
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders         Order[]
+  stockMovements StockMovement[]
+}
+
+// ---------------------------------------------------------------- Inventory
+
+model InventoryItem {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  category        String // see INVENTORY_CATEGORIES
+  unit            String // kg, L, pcs, dozen, ...
+  quantity        Float     @default(0)
+  reorderLevel    Float     @default(0) // alert at or below this
+  parLevel        Float     @default(0) // target stock after a restock
+  costPerUnit     Float? // rupees per unit, for restock estimates
+  supplier        String?
+  shelfLifeDays   Int? // perishables (milk, curd, paneer, ...)
+  lastRestockedAt DateTime?
+  notes           String?
+  archived        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  movements StockMovement[]
+
+  @@index([category])
+}
+
+// Append-only ledger: every change to an item's quantity is one row, so
+// consumption rates and "days left" are derived from history, not guessed.
+model StockMovement {
+  id           String   @id @default(cuid())
+  itemId       String
+  type         String // RESTOCK | USAGE | WASTAGE | ADJUSTMENT
+  change       Float // signed: + into stock, - out of stock
+  balanceAfter Float
+  unitCost     Float?
+  note         String?
+  userId       String?
+  createdAt    DateTime @default(now())
+
+  item InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([itemId, createdAt])
+  @@index([createdAt])
+}
+
+// ------------------------------------------------------------------ Canteen
+
+model MenuCategory {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  sortOrder Int        @default(0)
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id           String   @id @default(cuid())
+  categoryId   String
+  name         String
+  description  String?
+  price        Int // whole rupees
+  isVeg        Boolean  @default(true)
+  emoji        String? // placeholder until real photos are added
+  imageUrl     String?
+  isAvailable  Boolean  @default(true)
+  isBestseller Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  archived     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category   MenuCategory @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  token         Int // daily counter number called out at pickup
+  userId        String
+  status        String    @default("PLACED") // PLACED | PREPARING | READY | COMPLETED | CANCELLED
+  total         Int
+  paymentMethod String // CASH | UPI (paid at the counter)
+  isPaid        Boolean   @default(false)
+  note          String?
+  cancelReason  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  preparingAt   DateTime?
+  readyAt       DateTime?
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+// Name and price are copied at order time so later menu edits never rewrite
+// past orders.
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  menuItemId String
+  name       String
+  price      Int
+  isVeg      Boolean
+  quantity   Int
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+}
+
+model Setting {
+  key   String @id
+  value String
+}
