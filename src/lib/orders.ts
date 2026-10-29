@@ -61,6 +61,11 @@ export function startOfDayIST(now: Date) {
   return new Date(shifted.getTime() - IST_OFFSET_MS);
 }
 
+/** The IST calendar date as "YYYY-MM-DD". */
+export function istDateKey(now: Date) {
+  return new Date(now.getTime() + IST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
 export interface PricedLine {
   price: number;
   quantity: number;

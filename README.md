@@ -19,12 +19,13 @@ The canteen menu is a **placeholder** until the real one is ready. Edit it from 
 
 ## Run it locally
 
-You need **Node.js 20 or newer**. No database server is needed: it uses a SQLite file.
+You need **Node.js 20 or newer** and a **PostgreSQL** database. The quickest is Docker (`docker compose up -d` starts one that matches `.env.example`), or paste a free [Neon](https://neon.tech) connection string into `.env`.
 
 ```bash
 npm install
+docker compose up -d        # local PostgreSQL (skip if you use Neon or your own)
 cp .env.example .env        # then set AUTH_SECRET to a long random string (see the file)
-npm run setup               # creates the database and loads demo data
+npm run setup               # creates the tables and loads demo data
 npm run dev                 # http://localhost:3000
 ```
 
@@ -94,14 +95,31 @@ src/
 tests/                 unit tests (Vitest)
 ```
 
-Built with Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma and SQLite. Logins use a signed, httpOnly session cookie; passwords are hashed with bcrypt.
+Built with Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma and PostgreSQL. Logins use a signed, httpOnly session cookie; passwords are hashed with bcrypt.
 
 ## Putting it online
 
-- **One campus server or VM:** `npm ci && npm run build && npm run db:deploy && npm start` behind Nginx with HTTPS. SQLite is fine for a single server; back up `prisma/dev.db` (or whatever `DATABASE_URL` points to).
-- **Vercel or similar serverless hosts:** their file systems don't keep a SQLite file, so switch to PostgreSQL: change `provider` in `prisma/schema.prisma` to `postgresql`, point `DATABASE_URL` at the database, delete `prisma/migrations`, and run `npx prisma migrate dev --name init`.
+### Vercel + Neon (free, about 5 minutes)
+
+1. Open [vercel.com/new](https://vercel.com/new), sign in with GitHub and import this repository.
+2. Before clicking **Deploy**, open **Environment Variables** and add:
+   - `AUTH_SECRET`: a long random string (`node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`).
+   - `SEED_ADMIN_PASSWORD`: the admin's password, 8+ characters. The admin logs in as `admin@iimsambalpur.ac.in` unless you also set `SEED_ADMIN_EMAIL`.
+   - Optional: `ALLOWED_EMAIL_DOMAINS=iimsambalpur.ac.in` to allow only institute emails, and `SEED_DEMO_DATA=false` to start without demo orders and stock history.
+3. Click **Deploy**. The first build finishes without a database; that's expected.
+4. In the project, open **Storage → Create Database → Neon** (free plan) and connect it to the project. This adds `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
+5. **Deployments → ⋯ → Redeploy.** Each build runs `vercel-build`, which applies database migrations and, only when the database is empty, loads the menu, inventory items and the admin account.
+
+On a live site the demo passwords in `.env.example` are never used: the admin gets `SEED_ADMIN_PASSWORD`, and demo staff/student accounts (if `SEED_DEMO_DATA` is on) get random passwords nobody knows. Sign in as admin, then promote real mess staff from **Users & roles**.
+
+### Your own server or VM
+
+`npm ci && npm run build && npm run setup && npm start` behind Nginx with HTTPS, with `DATABASE_URL` pointing at PostgreSQL.
+
+### Notes
+
 - Always set a strong `AUTH_SECRET` and serve over HTTPS in production.
-- Rate limiting is in memory, which is right for one server. Use a shared store if you run several instances.
+- Rate limiting is in memory, per server instance. Use a shared store (e.g. Redis) if you need strict limits across many instances.
 
 ## Not built yet
 

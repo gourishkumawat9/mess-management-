@@ -14,6 +14,7 @@ import {
   canTransition,
   customerCanCancel,
   orderTotal,
+  istDateKey,
   startOfDayIST,
   statusTimestampField,
 } from "@/lib/orders";
@@ -107,12 +108,18 @@ export async function placeOrder(
     throw new HttpError(429, `You already have ${active} orders in progress. Please collect them first.`);
   }
 
-  // SQLite serialises write transactions, so the daily token count is safe here.
   return prisma.$transaction(async (tx) => {
-    const today = await tx.order.count({ where: { createdAt: { gte: startOfDayIST(new Date()) } } });
+    // Atomic per-day counter (INSERT … ON CONFLICT DO UPDATE), so simultaneous
+    // orders never share a token.
+    const day = istDateKey(new Date());
+    const counter = await tx.dailyCounter.upsert({
+      where: { day },
+      create: { day, value: 1 },
+      update: { value: { increment: 1 } },
+    });
     return tx.order.create({
       data: {
-        token: today + 1,
+        token: counter.value,
         userId: user.id,
         total: orderTotal(lines),
         paymentMethod: input.paymentMethod,

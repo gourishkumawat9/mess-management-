@@ -1,17 +1,22 @@
 /**
- * Demo data: accounts, a placeholder canteen menu, mess inventory with two
- * weeks of stock history, and a few canteen orders.
+ * Starting data: an admin account, a placeholder canteen menu and the mess
+ * inventory list. Unless SEED_DEMO_DATA=false it also adds demo accounts, two
+ * weeks of stock history and some canteen orders.
  *
- *   npm run db:seed    seeds an empty database (refuses if data exists)
+ *   npm run db:seed    seeds an empty database (does nothing if data exists)
  *   npm run db:reset   wipes the database and seeds it again
+ *
+ * On a live deployment (NODE_ENV=production or on Vercel) the admin password
+ * must come from SEED_ADMIN_PASSWORD; the built-in demo passwords are never used.
  *
  * Replace the placeholder menu from the staff "Canteen menu" screen (or edit
  * MENU below and reset) once the real menu is ready.
  */
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { startOfDayIST } from "../src/lib/orders";
+import { istDateKey, startOfDayIST } from "../src/lib/orders";
 
 const prisma = new PrismaClient();
 const DAY = 24 * 60 * 60 * 1000;
@@ -33,17 +38,52 @@ const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
 // ------------------------------------------------------------------ accounts
 
 const DOMAIN = "iimsambalpur.ac.in";
-const ACCOUNTS = [
-  { name: "Mess Admin", email: `admin@${DOMAIN}`, role: "ADMIN", password: process.env.SEED_ADMIN_PASSWORD || "Admin@123" },
-  { name: "Ramesh Kumar", email: `staff@${DOMAIN}`, role: "STAFF", password: process.env.SEED_STAFF_PASSWORD || "Staff@123", phone: "98765 43210" },
-  { name: "Demo Student", email: `student@${DOMAIN}`, role: "USER", password: process.env.SEED_STUDENT_PASSWORD || "Student@123", phone: "91234 56789" },
-  // Extra members so the order board looks lived-in. They share the student password.
-  { name: "Aarav Sharma", email: `aarav.s@${DOMAIN}`, role: "USER", password: process.env.SEED_STUDENT_PASSWORD || "Student@123" },
-  { name: "Priya Nair", email: `priya.n@${DOMAIN}`, role: "USER", password: process.env.SEED_STUDENT_PASSWORD || "Student@123" },
-  { name: "Rohan Das", email: `rohan.d@${DOMAIN}`, role: "USER", password: process.env.SEED_STUDENT_PASSWORD || "Student@123" },
-  { name: "Sneha Patel", email: `sneha.p@${DOMAIN}`, role: "USER", password: process.env.SEED_STUDENT_PASSWORD || "Student@123" },
-  { name: "Prof. K. Mishra", email: `k.mishra@${DOMAIN}`, role: "USER", password: process.env.SEED_STUDENT_PASSWORD || "Student@123" },
-];
+const LIVE = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
+const DEMO = process.env.SEED_DEMO_DATA !== "false";
+
+/**
+ * Password for a seeded account. Locally the documented demo password is the
+ * fallback. On a live site only a password set in the environment is used;
+ * otherwise the account gets a random one nobody knows (null for the admin,
+ * which stops the seed).
+ */
+function seedPassword(envName: string, demo: string, required = false): { value: string; known: boolean } | null {
+  const set = process.env[envName];
+  if (set && set.length >= 8 && !(LIVE && set === demo)) return { value: set, known: true };
+  if (!LIVE) return { value: demo, known: true };
+  if (required) return null;
+  return { value: randomBytes(24).toString("base64url"), known: false };
+}
+
+type Account = { name: string; email: string; role: string; password: string; known: boolean; phone?: string };
+function accounts(): Account[] | null {
+  const admin = seedPassword("SEED_ADMIN_PASSWORD", "Admin@123", true);
+  if (!admin) return null;
+  const list: Account[] = [
+    {
+      name: "Mess Admin",
+      email: (process.env.SEED_ADMIN_EMAIL || `admin@${DOMAIN}`).trim().toLowerCase(),
+      role: "ADMIN",
+      password: admin.value,
+      known: admin.known,
+    },
+  ];
+  if (!DEMO) return list;
+  const staff = seedPassword("SEED_STAFF_PASSWORD", "Staff@123")!;
+  const student = seedPassword("SEED_STUDENT_PASSWORD", "Student@123")!;
+  const member = (name: string, email: string) => ({ name, email, role: "USER", password: student.value, known: student.known });
+  return [
+    ...list,
+    { name: "Ramesh Kumar", email: `staff@${DOMAIN}`, role: "STAFF", password: staff.value, known: staff.known, phone: "98765 43210" },
+    { ...member("Demo Student", `student@${DOMAIN}`), phone: "91234 56789" },
+    // Extra members so the order board looks lived-in. They share the student password.
+    member("Aarav Sharma", `aarav.s@${DOMAIN}`),
+    member("Priya Nair", `priya.n@${DOMAIN}`),
+    member("Rohan Das", `rohan.d@${DOMAIN}`),
+    member("Sneha Patel", `sneha.p@${DOMAIN}`),
+    member("Prof. K. Mishra", `k.mishra@${DOMAIN}`),
+  ];
+}
 
 // ---------------------------------------------------------------------- menu
 // Placeholder menu: prices in whole rupees. [name, price, isVeg, emoji, description, bestseller?, available?]
@@ -170,7 +210,12 @@ async function main() {
   const existing = await prisma.user.count();
   if (existing > 0) {
     console.log("The database already has data, so nothing was seeded.");
-    console.log("Run `npm run db:reset` to wipe it and load the demo data again.");
+    if (!LIVE) console.log("Run `npm run db:reset` to wipe it and load the demo data again.");
+    return;
+  }
+  const ACCOUNTS = accounts();
+  if (!ACCOUNTS) {
+    console.log("Not seeding: set SEED_ADMIN_PASSWORD (8+ characters, not the demo one) so the live site gets a safe admin login.");
     return;
   }
 
@@ -185,14 +230,13 @@ async function main() {
         name: a.name,
         email: a.email,
         role: a.role,
-        phone: "phone" in a ? a.phone : null,
+        phone: a.phone ?? null,
         passwordHash: await bcrypt.hash(a.password, 10),
         createdAt: new Date(today.getTime() - 20 * DAY),
       },
     });
     users[a.email] = u;
   }
-  const staffId = users[`staff@${DOMAIN}`].id;
 
   // Settings
   await prisma.setting.createMany({
@@ -216,6 +260,25 @@ async function main() {
       );
     }
   }
+
+  if (!DEMO) {
+    // The inventory list with nothing in stock yet: staff enter real counts.
+    await prisma.inventoryItem.createMany({
+      data: INVENTORY.map(([name, category, unit, , reorderLevel, parLevel, cost, , , shelfLife, supplier]) => ({
+        name,
+        category,
+        unit,
+        reorderLevel,
+        parLevel,
+        costPerUnit: cost,
+        supplier,
+        shelfLifeDays: shelfLife,
+      })),
+    });
+    report(ACCOUNTS, dishes.length, 0);
+    return;
+  }
+  const staffId = users[`staff@${DOMAIN}`].id;
 
   // Inventory with 14 days of history
   const HISTORY_DAYS = 14;
@@ -370,10 +433,23 @@ async function main() {
     });
   }
 
-  console.log("Seeded demo data:");
-  console.log(`  ${ACCOUNTS.length} accounts, ${dishes.length} menu items, ${INVENTORY.length} inventory items, ${plans.length} orders`);
-  console.log("\nDemo logins:");
-  for (const a of ACCOUNTS.slice(0, 3)) console.log(`  ${a.role.padEnd(5)}  ${a.email}  /  ${a.password}`);
+  // Continue each day's token numbering from the seeded orders.
+  await prisma.dailyCounter.createMany({
+    data: [...tokens.entries()].map(([dayStart, value]) => ({ day: istDateKey(new Date(dayStart)), value })),
+  });
+
+  report(ACCOUNTS, dishes.length, plans.length);
+}
+
+function report(list: Account[], dishCount: number, orderCount: number) {
+  console.log(DEMO ? "Seeded demo data:" : "Seeded starting data (no demo data):");
+  console.log(`  ${list.length} accounts, ${dishCount} menu items, ${INVENTORY.length} inventory items, ${orderCount} orders`);
+  console.log("\nLogins:");
+  for (const a of list.slice(0, 3)) {
+    // Never print passwords on a live deployment (build logs are shared).
+    const shown = a.known ? (LIVE ? "(password from your environment settings)" : a.password) : "(random password; not for login)";
+    console.log(`  ${a.role.padEnd(5)}  ${a.email}  /  ${shown}`);
+  }
 }
 
 main()

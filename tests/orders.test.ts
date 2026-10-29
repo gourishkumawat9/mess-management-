@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ORDER_STATUSES } from "@/lib/constants";
-import { canTransition, customerCanCancel, nextStatus, orderTotal, startOfDayIST, statusTimestampField } from "@/lib/orders";
+import { canTransition, customerCanCancel, istDateKey, nextStatus, orderTotal, startOfDayIST, statusTimestampField } from "@/lib/orders";
 
 describe("order status flow", () => {
   it("moves forward one step at a time", () => {
@@ -46,6 +46,13 @@ describe("startOfDayIST", () => {
     expect(startOfDayIST(new Date("2026-10-28T18:45:00Z")).toISOString()).toBe("2026-10-28T18:30:00.000Z");
     // 28 Oct 23:50 IST
     expect(startOfDayIST(new Date("2026-10-28T18:20:00Z")).toISOString()).toBe("2026-10-27T18:30:00.000Z");
+  });
+});
+
+describe("istDateKey", () => {
+  it("names the Indian calendar day", () => {
+    expect(istDateKey(new Date("2026-10-28T18:45:00Z"))).toBe("2026-10-29");
+    expect(istDateKey(new Date("2026-10-28T18:20:00Z"))).toBe("2026-10-28");
   });
 });
 

@@ -1,16 +1,17 @@
 // IIM Sambalpur Mess & Canteen
-// SQLite keeps local setup to zero services. To move to PostgreSQL, change the
-// provider below and DATABASE_URL, then run `npx prisma migrate dev`.
-// Enum-like fields are plain strings (SQLite has no enums); the allowed values
-// live in src/lib/constants.ts and are enforced by the API validators.
+// PostgreSQL. DATABASE_URL is the app's (pooled) connection; migrations use
+// DATABASE_URL_UNPOOLED, a direct connection. Locally both can be the same URL.
+// Enum-like fields are plain strings; the allowed values live in
+// src/lib/constants.ts and are enforced by the API validators.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model User {
@@ -148,4 +149,11 @@ model OrderItem {
 model Setting {
   key   String @id
   value String
+}
+
+// One row per day (IST date, e.g. "2026-10-29"): hands out pickup tokens
+// 1, 2, 3… atomically, even when orders arrive at the same moment.
+model DailyCounter {
+  day   String @id
+  value Int
 }

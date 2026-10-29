@@ -89,8 +89,17 @@ interface MovementInput {
   note?: string | null;
 }
 
+/**
+ * Locks an item's row until the transaction ends, so two people updating the
+ * same item at once are applied one after the other instead of overwriting.
+ */
+async function lockItem(tx: Prisma.TransactionClient, itemId: string) {
+  await tx.$executeRaw`SELECT 1 FROM "InventoryItem" WHERE "id" = ${itemId} FOR UPDATE`;
+}
+
 /** Applies one stock change inside an existing transaction. */
 async function applyMovement(tx: Prisma.TransactionClient, itemId: string, input: MovementInput, userId: string) {
+  await lockItem(tx, itemId);
   const item = await tx.inventoryItem.findUnique({ where: { id: itemId } });
   if (!item || item.archived) throw new HttpError(404, "Inventory item not found");
 
@@ -146,9 +155,12 @@ export function recordMovement(itemId: string, input: MovementInput, userId: str
  * usage (it feeds the consumption rate); a count above it is a correction.
  */
 export async function recordStockCount(entries: { itemId: string; counted: number }[], userId: string, note?: string | null) {
+  // Lock in a fixed order so two overlapping counts can't deadlock.
+  const sorted = [...entries].sort((a, b) => a.itemId.localeCompare(b.itemId));
   return prisma.$transaction(async (tx) => {
     let changed = 0;
-    for (const { itemId, counted } of entries) {
+    for (const { itemId, counted } of sorted) {
+      await lockItem(tx, itemId);
       const item = await tx.inventoryItem.findUnique({ where: { id: itemId } });
       if (!item || item.archived) throw new HttpError(404, "Inventory item not found");
       const diff = roundQty(counted - item.quantity);
@@ -169,8 +181,9 @@ export async function recordDelivery(
   userId: string,
   note?: string | null,
 ) {
+  const sorted = [...entries].sort((a, b) => a.itemId.localeCompare(b.itemId));
   return prisma.$transaction(async (tx) => {
-    for (const e of entries) {
+    for (const e of sorted) {
       await applyMovement(tx, e.itemId, { type: "RESTOCK", quantity: e.quantity, unitCost: e.unitCost, note: note ?? "Delivery received" }, userId);
     }
     return { received: entries.length };
