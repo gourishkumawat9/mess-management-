@@ -163,6 +163,17 @@ const MENU: Record<string, Dish[]> = {
   ],
 };
 
+// Real photos (Unsplash License, see PHOTO_CREDITS.md) for the dishes we have a
+// matching photo for. The rest show their emoji until staff add a photo URL.
+const unsplash = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&q=75&w=480&h=480`;
+const DISH_PHOTOS: Record<string, string> = {
+  "Masala Chai": unsplash("photo-1761483281417-778013dc0177"),
+  "Samosa (2 pcs)": unsplash("photo-1601050690597-df0568f70950"),
+  "Veg Grilled Sandwich": unsplash("photo-1709689156424-16fe0e05b47b"),
+  "Cheese Corn Sandwich": unsplash("photo-1528735602780-2552fd46c7af"),
+  "Oreo Shake": unsplash("photo-1775708838877-a3b8d7383c31"),
+};
+
 // ----------------------------------------------------------------- inventory
 // [name, category, unit, target stock now, reorder level, full stock, ₹/unit, uses per day, restock every N days, shelf life days?, supplier]
 type Stock = [string, string, string, number, number, number, number, number, number, number | null, string];
@@ -278,7 +289,7 @@ async function main() {
     for (const [name, price, isVeg, emoji, description, bestseller = false, available = true] of items) {
       dishes.push(
         await prisma.menuItem.create({
-          data: { categoryId: cat.id, name, price, isVeg, emoji, description, isBestseller: bestseller, isAvailable: available, sortOrder: ++itemOrder },
+          data: { categoryId: cat.id, name, price, isVeg, emoji, description, imageUrl: DISH_PHOTOS[name] ?? null, isBestseller: bestseller, isAvailable: available, sortOrder: ++itemOrder },
         }),
       );
     }

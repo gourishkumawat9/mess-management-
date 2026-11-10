@@ -39,8 +39,8 @@ export function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-bold text-zinc-900">{title}</h2>
-          <button type="button" onClick={onClose} className="rounded-full p-1.5 text-zinc-500 hover:bg-zinc-100" aria-label="Close">
+          <h2 className="text-lg font-bold text-ink">{title}</h2>
+          <button type="button" onClick={onClose} className="rounded-full p-1.5 text-zinc-500 hover:bg-brand-50" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>

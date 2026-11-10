@@ -127,7 +127,7 @@ export function MenuManager({ categories }: { categories: Category[] }) {
         {categories.map((cat) => (
           <section key={cat.id} className="card overflow-hidden">
             <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
-              <h2 className="font-bold text-zinc-900">
+              <h2 className="text-lg font-extrabold tracking-tight text-ink">
                 {cat.name} <span className="font-medium text-zinc-400">· {cat.items.length}</span>
               </h2>
               <button onClick={() => setDraft(blankDraft(cat.id))} className="btn-ghost btn-sm">
@@ -138,11 +138,11 @@ export function MenuManager({ categories }: { categories: Category[] }) {
             <ul className="divide-y divide-zinc-100">
               {cat.items.map((dish) => (
                 <li key={dish.id} className={clsx("flex items-center gap-3 px-4 py-3", !dish.isAvailable && "bg-zinc-50")}>
-                  <DishImage name={dish.name} emoji={dish.emoji} imageUrl={dish.imageUrl} size="sm" className={clsx("h-11 w-11 shrink-0 rounded-xl", !dish.isAvailable && "grayscale")} />
+                  <DishImage name={dish.name} emoji={dish.emoji} imageUrl={dish.imageUrl} size="sm" className={clsx("h-11 w-11 shrink-0 rounded-2xl", !dish.isAvailable && "grayscale")} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <VegMark isVeg={dish.isVeg} className="scale-90" />
-                      <p className="truncate font-semibold text-zinc-900">{dish.name}</p>
+                      <p className="truncate font-semibold text-ink">{dish.name}</p>
                     </div>
                     <p className="text-sm text-zinc-500">₹{dish.price}</p>
                   </div>
@@ -239,7 +239,7 @@ export function MenuManager({ categories }: { categories: Category[] }) {
                 </label>
               ))}
             </div>
-            {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+            {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
             <div className="flex gap-2 pt-2">
               {draft.id && (
                 <button type="button" onClick={removeDish} disabled={saving} className="btn-danger">

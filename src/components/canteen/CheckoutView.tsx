@@ -81,7 +81,7 @@ export function CheckoutView({
       <main className="page max-w-2xl">
         <div className="card mt-6 p-10 text-center">
           <p className="text-5xl">🛍️</p>
-          <h1 className="mt-3 text-xl font-bold text-zinc-900">Your cart is empty</h1>
+          <h1 className="mt-3 text-xl font-bold text-ink">Your cart is empty</h1>
           <p className="mt-1 text-sm text-zinc-500">Add something tasty from the canteen menu.</p>
           <Link href="/" className="btn-primary mt-5">
             Browse the menu
@@ -113,11 +113,11 @@ export function CheckoutView({
           const isUnavailable = !menu[line.menuItemId]?.available;
           return (
             <div key={line.menuItemId} className="flex items-start gap-3 p-4">
-              <DishImage name={line.name} emoji={line.emoji} size="sm" className="h-12 w-12 shrink-0 rounded-xl" />
+              <DishImage name={line.name} emoji={line.emoji} size="sm" className="h-12 w-12 shrink-0 rounded-2xl" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-1.5">
                   <VegMark isVeg={line.isVeg} className="mt-0.5 scale-90" />
-                  <p className={clsx("line-clamp-2 font-semibold leading-snug", isUnavailable ? "text-zinc-400 line-through" : "text-zinc-900")}>
+                  <p className={clsx("line-clamp-2 font-semibold leading-snug", isUnavailable ? "text-zinc-400 line-through" : "text-ink")}>
                     {line.name}
                   </p>
                 </div>
@@ -145,7 +145,7 @@ export function CheckoutView({
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              <p className="text-sm font-semibold text-zinc-900">₹{line.price * line.quantity}</p>
+              <p className="text-sm font-semibold text-ink">₹{line.price * line.quantity}</p>
               </div>
             </div>
           );
@@ -171,14 +171,14 @@ export function CheckoutView({
               type="button"
               onClick={() => setFulfilment(id)}
               className={clsx(
-                "flex items-start gap-3 rounded-xl border p-3 text-left transition",
+                "flex items-start gap-3 rounded-2xl border p-3 text-left transition",
                 fulfilment === id ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-zinc-200 hover:border-zinc-300",
               )}
               aria-pressed={fulfilment === id}
             >
               <Icon className={clsx("mt-0.5 h-5 w-5", fulfilment === id ? "text-brand-600" : "text-zinc-400")} />
               <span>
-                <span className="block font-semibold text-zinc-900">{label}</span>
+                <span className="block font-semibold text-ink">{label}</span>
                 <span className="block text-xs text-zinc-500">{hint}</span>
               </span>
             </button>
@@ -226,14 +226,14 @@ export function CheckoutView({
               type="button"
               onClick={() => setPayment(id)}
               className={clsx(
-                "flex items-start gap-3 rounded-xl border p-3 text-left transition",
+                "flex items-start gap-3 rounded-2xl border p-3 text-left transition",
                 payment === id ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-zinc-200 hover:border-zinc-300",
               )}
               aria-pressed={payment === id}
             >
               <Icon className={clsx("mt-0.5 h-5 w-5", payment === id ? "text-brand-600" : "text-zinc-400")} />
               <span>
-                <span className="block font-semibold text-zinc-900">{label}</span>
+                <span className="block font-semibold text-ink">{label}</span>
                 <span className="block text-xs text-zinc-500">{hint}</span>
               </span>
             </button>
@@ -251,7 +251,7 @@ export function CheckoutView({
           <span>Packaging &amp; service</span>
           <span className="font-medium text-emerald-600">FREE</span>
         </div>
-        <div className="mt-3 flex justify-between border-t border-dashed border-zinc-200 pt-3 text-base font-bold text-zinc-900">
+        <div className="mt-3 flex justify-between border-t border-dashed border-zinc-200 pt-3 text-base font-bold text-ink">
           <span>To pay</span>
           <span>₹{cart.total}</span>
         </div>
@@ -266,7 +266,7 @@ export function CheckoutView({
         </div>
       )}
 
-      <div className="sticky bottom-0 -mx-4 mt-6 bg-gradient-to-t from-stone-50 via-stone-50 to-stone-50/0 px-4 pb-4 pt-6 sm:-mx-6 sm:px-6">
+      <div className="sticky bottom-0 -mx-4 mt-6 bg-gradient-to-t from-cream-100 via-cream-100 to-cream-100/0 px-4 pb-4 pt-6 sm:-mx-6 sm:px-6">
         <button
           onClick={placeOrder}
           disabled={placing || !open || unavailable.length > 0 || addressMissing}

@@ -32,7 +32,7 @@ export default async function MyOrdersPage() {
         </p>
       </div>
       <div className="text-right">
-        <p className="font-bold text-zinc-900">₹{order.total}</p>
+        <p className="font-bold text-ink">₹{order.total}</p>
         <ChevronRight className="ml-auto mt-1 h-4 w-4 text-zinc-400" />
       </div>
     </Link>
@@ -44,7 +44,7 @@ export default async function MyOrdersPage() {
       {orders.length === 0 && (
         <div className="card mt-6 p-10 text-center">
           <p className="text-5xl">🧾</p>
-          <p className="mt-3 font-semibold text-zinc-900">No orders yet</p>
+          <p className="mt-3 font-semibold text-ink">No orders yet</p>
           <p className="text-sm text-zinc-500">Your canteen orders will show up here.</p>
           <Link href="/" className="btn-primary mt-5">
             Order something

@@ -156,18 +156,18 @@ export function InventoryView({ items, initialFilter }: { items: InventoryRowDat
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 {rows.map((r) => (
-                  <tr key={r.id} className="hover:bg-zinc-50/60">
+                  <tr key={r.id} className="hover:bg-cream-100/60">
                     <td className="px-4 py-3">
                       <Link href={`/staff/inventory/${r.id}`} className="flex items-center gap-3">
                         <span className="text-xl">{inventoryCategory(r.category).emoji}</span>
                         <span>
-                          <span className="block font-semibold text-zinc-900 hover:text-brand-700">{r.name}</span>
+                          <span className="block font-semibold text-ink hover:text-brand-700">{r.name}</span>
                           <span className="block text-xs text-zinc-500">{inventoryCategory(r.category).label}</span>
                         </span>
                       </Link>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-zinc-900">{formatQty(r.quantity, r.unit)}</p>
+                      <p className="font-semibold text-ink">{formatQty(r.quantity, r.unit)}</p>
                       <div className="mt-1 h-1.5 w-28 overflow-hidden rounded-full bg-zinc-100">
                         <div className={clsx("h-full rounded-full", BAR[r.insight.status])} style={{ width: `${fill(r)}%` }} />
                       </div>
@@ -209,7 +209,7 @@ export function InventoryView({ items, initialFilter }: { items: InventoryRowDat
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">{inventoryCategory(r.category).emoji}</span>
                   <Link href={`/staff/inventory/${r.id}`} className="min-w-0 flex-1">
-                    <p className="font-semibold text-zinc-900">{r.name}</p>
+                    <p className="font-semibold text-ink">{r.name}</p>
                     <p className="text-sm text-zinc-600">
                       {formatQty(r.quantity, r.unit)} · lasts {formatDays(r.insight.daysLeft)}
                     </p>
