@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/db";
-import { HttpError, STAFF_ROLES, json, readJson, requireUser, route } from "@/lib/api";
+import { HttpError, CANTEEN_ROLES, json, readJson, requireUser, route } from "@/lib/api";
 import { menuItemSchema } from "@/lib/validation";
 
 export const POST = route(async (req) => {
-  await requireUser(STAFF_ROLES);
+  await requireUser(CANTEEN_ROLES);
   const input = await readJson(req, menuItemSchema);
   const category = await prisma.menuCategory.findUnique({ where: { id: input.categoryId } });
   if (!category) throw new HttpError(400, "Pick a menu category");

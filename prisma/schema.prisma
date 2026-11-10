@@ -20,7 +20,9 @@ model User {
   email        String   @unique
   phone        String?
   passwordHash String
-  role         String   @default("USER") // USER | STAFF | ADMIN
+  role         String   @default("USER") // USER | CANTEEN | MESS | STAFF | ADMIN
+  hostel       String? // remembered delivery address, filled at sign-up or checkout
+  room         String?
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -105,21 +107,25 @@ model MenuItem {
 }
 
 model Order {
-  id            String    @id @default(cuid())
-  token         Int // daily counter number called out at pickup
-  userId        String
-  status        String    @default("PLACED") // PLACED | PREPARING | READY | COMPLETED | CANCELLED
-  total         Int
-  paymentMethod String // CASH | UPI (paid at the counter)
-  isPaid        Boolean   @default(false)
-  note          String?
-  cancelReason  String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  preparingAt   DateTime?
-  readyAt       DateTime?
-  completedAt   DateTime?
-  cancelledAt   DateTime?
+  id             String    @id @default(cuid())
+  token          Int // daily counter number called out at pickup
+  userId         String
+  status         String    @default("PLACED") // PLACED | PREPARING | READY | COMPLETED | CANCELLED
+  total          Int
+  paymentMethod  String // CASH | UPI (paid at the counter)
+  isPaid         Boolean   @default(false)
+  note           String?
+  fulfilment     String    @default("PICKUP") // PICKUP | DELIVERY
+  // Delivery address copied at order time; null for pickup orders.
+  deliveryHostel String?
+  deliveryRoom   String?
+  cancelReason   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  preparingAt    DateTime?
+  readyAt        DateTime?
+  completedAt    DateTime?
+  cancelledAt    DateTime?
 
   user  User        @relation(fields: [userId], references: [id])
   items OrderItem[]

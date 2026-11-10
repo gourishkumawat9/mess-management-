@@ -5,7 +5,10 @@ import type { CurrentUser } from "@/lib/auth";
 import {
   DEFAULT_CANTEEN_HOURS,
   MAX_ACTIVE_ORDERS_PER_USER,
+  CANTEEN_ROLES,
   SETTINGS,
+  hasRole,
+  type Fulfilment,
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/constants";
@@ -84,8 +87,16 @@ const orderInclude = {
 
 export async function placeOrder(
   user: CurrentUser,
-  input: { items: { menuItemId: string; quantity: number }[]; paymentMethod: PaymentMethod; note: string | null },
+  input: {
+    items: { menuItemId: string; quantity: number }[];
+    paymentMethod: PaymentMethod;
+    note: string | null;
+    fulfilment: Fulfilment;
+    hostel: string | null;
+    room: string | null;
+  },
 ) {
+  const delivery = input.fulfilment === "DELIVERY";
   const settings = await getCanteenSettings();
   if (!settings.open) throw new HttpError(409, "The canteen is closed right now");
 
@@ -109,6 +120,10 @@ export async function placeOrder(
   }
 
   return prisma.$transaction(async (tx) => {
+    // Remember the delivery address so checkout is pre-filled next time.
+    if (delivery && (input.hostel !== user.hostel || input.room !== user.room)) {
+      await tx.user.update({ where: { id: user.id }, data: { hostel: input.hostel, room: input.room } });
+    }
     // Atomic per-day counter (INSERT … ON CONFLICT DO UPDATE), so simultaneous
     // orders never share a token.
     const day = istDateKey(new Date());
@@ -124,6 +139,9 @@ export async function placeOrder(
         total: orderTotal(lines),
         paymentMethod: input.paymentMethod,
         note: input.note,
+        fulfilment: input.fulfilment,
+        deliveryHostel: delivery ? input.hostel : null,
+        deliveryRoom: delivery ? input.room : null,
         items: { create: lines },
       },
       include: orderInclude,
@@ -140,12 +158,11 @@ export async function listMyOrders(userId: string) {
   });
 }
 
-/** An order the given user is allowed to see: their own, or any for staff. */
+/** An order the given user is allowed to see: their own, or any for canteen staff. */
 export async function getOrderFor(user: CurrentUser, id: string) {
   const order = await prisma.order.findUnique({ where: { id }, include: orderInclude });
   if (!order) return null;
-  const staff = user.role === "STAFF" || user.role === "ADMIN";
-  if (order.userId !== user.id && !staff) return null;
+  if (order.userId !== user.id && !hasRole(user.role, CANTEEN_ROLES)) return null;
   return order;
 }
 

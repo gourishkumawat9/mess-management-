@@ -3,16 +3,18 @@ import { prisma } from "@/lib/db";
 import { ACTIVE_STATUSES, startOfDayIST } from "@/lib/orders";
 import { listInventory, recentMovements } from "./inventory";
 
-export async function getDashboard(now = new Date()) {
+/** Figures for the staff dashboard. Each team only loads its own half. */
+export async function getDashboard({ canteen = true, mess = true } = {}, now = new Date()) {
   const since = startOfDayIST(now);
-  const [inventory, todaysOrders, activeOrders, movements, topItems] = await Promise.all([
-    listInventory(now),
+  const [inventory, todaysOrders, activeOrders, activeDeliveries, movements, topItems] = await Promise.all([
+    mess ? listInventory(now) : Promise.resolve([] as Awaited<ReturnType<typeof listInventory>>),
     prisma.order.findMany({
       where: { createdAt: { gte: since }, status: { not: "CANCELLED" } },
       select: { total: true },
     }),
     prisma.order.count({ where: { status: { in: ACTIVE_STATUSES } } }),
-    recentMovements(8),
+    prisma.order.count({ where: { status: { in: ACTIVE_STATUSES }, fulfilment: "DELIVERY" } }),
+    mess ? recentMovements(8) : Promise.resolve([] as Awaited<ReturnType<typeof recentMovements>>),
     prisma.orderItem.groupBy({
       by: ["name"],
       where: { order: { createdAt: { gte: since }, status: { not: "CANCELLED" } } },
@@ -35,6 +37,7 @@ export async function getDashboard(now = new Date()) {
       today: todaysOrders.length,
       revenue: todaysOrders.reduce((s, o) => s + o.total, 0),
       active: activeOrders,
+      activeDeliveries,
       topItems: topItems.map((t) => ({ name: t.name, quantity: t._sum.quantity ?? 0 })),
     },
     movements,

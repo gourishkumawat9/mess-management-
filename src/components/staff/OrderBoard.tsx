@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { Bell, BellOff, RefreshCw, X } from "lucide-react";
+import { Bell, BellOff, Bike, RefreshCw, Store, X } from "lucide-react";
 import { OrderStatusBadge } from "@/components/canteen/OrderStatusBadge";
 import { VegMark } from "@/components/VegMark";
 import { CanteenToggle } from "./CanteenToggle";
@@ -19,6 +19,9 @@ interface BoardOrder {
   paymentMethod: string;
   isPaid: boolean;
   note: string | null;
+  fulfilment: string;
+  deliveryHostel: string | null;
+  deliveryRoom: string | null;
   createdAt: string;
   updatedAt: string;
   items: { id: string; name: string; quantity: number; isVeg: boolean }[];
@@ -33,7 +36,7 @@ interface BoardData {
 const COLUMNS: { status: OrderStatus; title: string; tone: string }[] = [
   { status: "PLACED", title: "New", tone: "bg-sky-500" },
   { status: "PREPARING", title: "Preparing", tone: "bg-amber-500" },
-  { status: "READY", title: "Ready for pickup", tone: "bg-emerald-500" },
+  { status: "READY", title: "Ready to hand over", tone: "bg-emerald-500" },
 ];
 
 function beep() {
@@ -158,6 +161,16 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                           {order.user.phone && <p className="text-xs text-zinc-500">{order.user.phone}</p>}
                         </div>
                       </div>
+                      {order.fulfilment === "DELIVERY" ? (
+                        <p className="mt-3 flex items-center gap-2 rounded-xl bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-900">
+                          <Bike className="h-4 w-4 shrink-0" />
+                          Deliver: Hostel {order.deliveryHostel} · Room {order.deliveryRoom}
+                        </p>
+                      ) : (
+                        <p className="mt-3 flex items-center gap-2 text-xs font-medium text-zinc-500">
+                          <Store className="h-3.5 w-3.5" /> Pickup at counter
+                        </p>
+                      )}
                       <ul className="mt-3 space-y-1.5 text-sm">
                         {order.items.map((item) => (
                           <li key={item.id} className="flex items-center gap-2">
@@ -192,7 +205,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                             disabled={busyId === order.id}
                             className={clsx("btn flex-1 text-white", order.status === "READY" ? "bg-zinc-900 hover:bg-zinc-800" : "bg-brand-600 hover:bg-brand-700")}
                           >
-                            {ORDER_STATUS_META[order.status].next}
+                            {order.status === "READY" && order.fulfilment === "DELIVERY" ? "Delivered" : ORDER_STATUS_META[order.status].next}
                           </button>
                         )}
                         <button onClick={() => cancel(order)} disabled={busyId === order.id} className="btn-secondary px-3" aria-label={`Cancel token ${order.token}`} title="Cancel order">
@@ -219,7 +232,14 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                 {data.done.map((o) => (
                   <tr key={o.id}>
                     <td className="px-4 py-3 font-bold text-zinc-900">#{o.token}</td>
-                    <td className="px-4 py-3 text-zinc-700">{o.user.name}</td>
+                    <td className="px-4 py-3 text-zinc-700">
+                      {o.user.name}
+                      {o.fulfilment === "DELIVERY" && (
+                        <span className="block text-xs text-zinc-500">
+                          Hostel {o.deliveryHostel} · Room {o.deliveryRoom}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-zinc-500">
                       {(() => {
                         const n = o.items.reduce((sum, i) => sum + i.quantity, 0);

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { ArrowLeft, Check, ChefHat, CircleX, Package, PartyPopper, Receipt } from "lucide-react";
+import { ArrowLeft, Bike, Check, ChefHat, CircleX, Package, PartyPopper, Receipt, Store } from "lucide-react";
 import { VegMark } from "@/components/VegMark";
 import { api } from "@/lib/client";
 import type { OrderStatus } from "@/lib/constants";
@@ -20,6 +20,9 @@ export interface TrackedOrder {
   paymentMethod: string;
   isPaid: boolean;
   note: string | null;
+  fulfilment: string;
+  deliveryHostel: string | null;
+  deliveryRoom: string | null;
   cancelReason: string | null;
   createdAt: string;
   preparingAt: string | null;
@@ -75,7 +78,15 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
     COMPLETED: order.completedAt,
   };
   const currentIndex = TRACKING_STEPS.indexOf(order.status);
-  const meta = ORDER_STATUS_META[order.status];
+  const delivery = order.fulfilment === "DELIVERY";
+  const where = `Hostel ${order.deliveryHostel}, Room ${order.deliveryRoom}`;
+  // Delivery orders reuse the same statuses; only the wording changes.
+  const deliveryText: Partial<Record<OrderStatus, { label: string; hint: string }>> = {
+    READY: { label: "Ready", hint: `On its way to ${where}` },
+    COMPLETED: { label: "Delivered", hint: "Enjoy your meal!" },
+  };
+  const stepLabel = (s: OrderStatus) => (delivery && deliveryText[s]?.label) || ORDER_STATUS_META[s].label;
+  const meta = { ...ORDER_STATUS_META[order.status], ...(delivery ? deliveryText[order.status] : {}) };
 
   return (
     <main className="page max-w-2xl">
@@ -112,7 +123,9 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
         </div>
         {order.status === "READY" && (
           <p className="mt-4 rounded-xl bg-white/15 p-3 text-sm font-semibold">
-            Show token #{order.token} at the canteen counter to collect your food.
+            {delivery
+              ? `Your food is being brought to ${where}. Token #${order.token}.`
+              : `Show token #${order.token} at the canteen counter to collect your food.`}
           </p>
         )}
         {order.status === "CANCELLED" && order.cancelReason && (
@@ -144,7 +157,7 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
                     {done && i < currentIndex ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </span>
                   <div className="pt-1.5">
-                    <p className={clsx("font-semibold", done ? "text-zinc-900" : "text-zinc-400")}>{ORDER_STATUS_META[step].label}</p>
+                    <p className={clsx("font-semibold", done ? "text-zinc-900" : "text-zinc-400")}>{stepLabel(step)}</p>
                     {stamp && <p className="text-xs text-zinc-500">{formatTime(stamp)}</p>}
                   </div>
                 </li>
@@ -155,6 +168,10 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
       )}
 
       <section className="card mt-4 p-5">
+        <p className="mb-3 flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700">
+          {delivery ? <Bike className="h-4 w-4" /> : <Store className="h-4 w-4" />}
+          {delivery ? `Delivery to ${where}` : "Pickup at the canteen counter"}
+        </p>
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-zinc-900">Order summary</h2>
           <OrderStatusBadge status={order.status} />
@@ -176,7 +193,7 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
           <span>₹{order.total}</span>
         </div>
         <p className="mt-1 text-xs text-zinc-500">
-          Pay by {order.paymentMethod === "UPI" ? "UPI" : "cash"} at the counter · {order.isPaid ? "Paid ✓" : "Not paid yet"}
+          Pay by {order.paymentMethod === "UPI" ? "UPI" : "cash"} {delivery ? "on delivery" : "at the counter"} · {order.isPaid ? "Paid ✓" : "Not paid yet"}
         </p>
       </section>
 

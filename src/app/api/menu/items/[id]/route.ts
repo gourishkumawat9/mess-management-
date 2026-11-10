@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
-import { HttpError, STAFF_ROLES, json, readJson, requireUser, route } from "@/lib/api";
+import { HttpError, CANTEEN_ROLES, json, readJson, requireUser, route } from "@/lib/api";
 import { updateMenuItemSchema } from "@/lib/validation";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export const PATCH = route<Ctx>(async (req, { params }) => {
-  await requireUser(STAFF_ROLES);
+  await requireUser(CANTEEN_ROLES);
   const { id } = await params;
   const input = await readJson(req, updateMenuItemSchema);
   if (!(await prisma.menuItem.findUnique({ where: { id } }))) throw new HttpError(404, "Menu item not found");

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { requirePageUser } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import clsx from "clsx";
 import { ArrowLeft } from "lucide-react";
 import { ItemActions } from "@/components/staff/ItemActions";
 import { ExpiryBadge, StockBadge } from "@/components/staff/StockBadge";
-import { MOVEMENT_LABELS, inventoryCategory, type MovementType } from "@/lib/constants";
+import { MESS_ROLES, MOVEMENT_LABELS, inventoryCategory, type MovementType } from "@/lib/constants";
 import { formatDate, formatDateTime, formatDay, formatDays, formatQty, rupees } from "@/lib/format";
 import { USAGE_WINDOW_DAYS } from "@/lib/inventory";
 import { getInventoryItem } from "@/server/inventory";
@@ -13,6 +14,7 @@ import { getInventoryItem } from "@/server/inventory";
 export const metadata: Metadata = { title: "Inventory item" };
 
 export default async function InventoryItemPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePageUser(MESS_ROLES, "/staff/inventory");
   const item = await getInventoryItem((await params).id);
   if (!item || item.archived) notFound();
   const { insight } = item;
