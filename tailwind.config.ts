@@ -38,14 +38,22 @@ export default {
       },
       fontFamily: {
         sans: ['"Inter Variable"', "ui-sans-serif", "system-ui", "-apple-system", '"Segoe UI"', "Roboto", "sans-serif"],
-        display: ['"Bricolage Grotesque Variable"', '"Inter Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Anton", "Impact", '"Arial Narrow"', "sans-serif"],
+        script: ['"Caveat Brush"', "cursive"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(51,6,14,0.05), 0 8px 24px -8px rgba(51,6,14,0.12)",
         lift: "0 2px 4px rgba(51,6,14,0.06), 0 24px 48px -16px rgba(51,6,14,0.28)",
+        // Hard offset shadows: the chunky, printed-sticker look.
+        hard: "4px 4px 0 0 #22090e",
+        "hard-sm": "3px 3px 0 0 #22090e",
+        "hard-lg": "7px 7px 0 0 #22090e",
+        "hard-xl": "10px 10px 0 0 #22090e",
       },
       keyframes: {
         marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },
+        "marquee-rev": { from: { transform: "translateX(-50%)" }, to: { transform: "translateX(0)" } },
+        wiggle: { "0%,100%": { transform: "rotate(var(--r,0deg))" }, "50%": { transform: "rotate(calc(var(--r,0deg) + 4deg))" } },
         "spin-slow": { to: { transform: "rotate(360deg)" } },
         float: { "0%,100%": { transform: "translateY(0) rotate(var(--r,0deg))" }, "50%": { transform: "translateY(-10px) rotate(var(--r,0deg))" } },
         "page-in": { from: { opacity: "0", transform: "translateY(12px)" }, to: { opacity: "1", transform: "none" } },
@@ -53,6 +61,8 @@ export default {
       },
       animation: {
         marquee: "marquee 40s linear infinite",
+        "marquee-rev": "marquee-rev 45s linear infinite",
+        wiggle: "wiggle 3.5s ease-in-out infinite",
         "spin-slow": "spin-slow 18s linear infinite",
         float: "float 6s ease-in-out infinite",
         "page-in": "page-in .6s cubic-bezier(.22,1,.36,1) both",

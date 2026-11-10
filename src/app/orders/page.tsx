@@ -17,10 +17,10 @@ export default async function MyOrdersPage() {
   const past = orders.filter((o) => !ACTIVE_STATUSES.includes(o.status as OrderStatus));
 
   const OrderCard = ({ order }: { order: (typeof orders)[number] }) => (
-    <Link href={`/orders/${order.id}`} className="card flex items-center gap-4 p-4 transition hover:shadow-lg">
-      <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
+    <Link href={`/orders/${order.id}`} className="card card-hover flex items-center gap-4 p-4">
+      <div className="flex h-16 w-16 shrink-0 -rotate-3 flex-col items-center justify-center rounded-2xl border-2 border-ink bg-gold-400 text-ink">
         <span className="text-[10px] font-semibold uppercase">Token</span>
-        <span className="text-lg font-extrabold leading-none">{order.token}</span>
+        <span className="font-display text-2xl leading-none">{order.token}</span>
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">

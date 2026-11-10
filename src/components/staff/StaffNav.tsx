@@ -30,17 +30,17 @@ export function StaffNav({ role }: { role: Role }) {
   const links = LINKS.filter((l) => !l.roles || hasRole(role, l.roles));
   return (
     <nav className="print:hidden lg:w-56 lg:shrink-0">
-      <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 pb-3 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:rounded-[1.75rem] lg:bg-brand-950 lg:p-3 lg:shadow-lift">
+      <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 pb-3 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:rounded-[1.5rem] lg:border-2 lg:border-ink lg:bg-ink lg:p-3 lg:shadow-hard">
         <p className="label hidden px-3 pb-1 pt-2 lg:block lg:!text-gold-300">{ROLE_LABELS[role]}</p>
         {links.map(({ href, label, Icon, exact }) => (
           <Link
             key={href}
             href={href}
             className={clsx(
-              "inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold transition duration-300",
+              "inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition duration-300",
               isActive(pathname, href, exact)
-                ? "bg-brand-600 text-white shadow-sm shadow-black/20"
-                : "text-ink/70 hover:bg-brand-50 hover:text-brand-700 lg:text-white/70 lg:hover:bg-white/10 lg:hover:text-white",
+                ? "border-2 border-ink bg-brand-600 text-white lg:border-brand-600"
+                : "border-2 border-transparent text-ink/70 hover:bg-brand-50 hover:text-brand-700 lg:text-white/70 lg:hover:bg-white/10 lg:hover:text-white",
             )}
           >
             <Icon className="h-4 w-4" />

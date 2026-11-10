@@ -83,16 +83,18 @@ export default async function StaffDashboard() {
 
   return (
     <div>
-      <div className="relative overflow-hidden rounded-[2rem] bg-brand-950 text-white shadow-lift">
+      <div className="relative overflow-hidden rounded-[2rem] border-2 border-ink bg-brand-600 text-white shadow-hard-lg">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photoUrl(banner, 1400, 500)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-950 via-brand-950/80 to-brand-900/30" />
+        <img src={photoUrl(banner, 1400, 500)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-700 via-brand-600/80 to-transparent" />
+        <div aria-hidden className="absolute -right-6 -top-10 font-display text-[10rem] uppercase leading-none text-white/10">{canteen && mess ? "Owner" : canteen ? "Canteen" : "Mess"}</div>
         <div className="relative flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-9">
           <div>
-            <p className="eyebrow !text-gold-300">
+            <p className="eyebrow !text-gold-300 !tracking-[0.25em]">
               {heading} · {formatDate(now)}
             </p>
-            <h1 className="display mt-3 text-4xl sm:text-5xl">Hello, {user.name.split(" ")[0]}</h1>
+            <p className="scribble mt-3 text-2xl text-gold-300">hey there,</p>
+            <h1 className="display text-6xl sm:text-7xl">{user.name.split(" ")[0]}</h1>
           </div>
           {canteen && (
             <CanteenToggle open={settings.open} />
@@ -103,10 +105,10 @@ export default async function StaffDashboard() {
       <div className={`mt-6 grid grid-cols-2 gap-3 ${tiles.length > 3 ? "lg:grid-cols-4" : tiles.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>
         {tiles.map(({ label, value, hint, Icon, tone, href }, i) => (
           <Link key={label} href={href} {...reveal("up", i * 90)} className="card card-hover group p-5">
-            <span className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl transition duration-500 group-hover:-rotate-6 group-hover:scale-110 ${tone}`}>
+            <span className={`inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-ink transition duration-500 group-hover:-rotate-6 group-hover:scale-110 ${tone}`}>
               <Icon className="h-5 w-5" />
             </span>
-            <p className="mt-4 font-display text-3xl font-extrabold tracking-tight text-ink">{value}</p>
+            <p className="mt-4 font-display text-5xl leading-none text-ink">{value}</p>
             <p className="text-sm font-semibold text-zinc-700">{label}</p>
             <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>
           </Link>

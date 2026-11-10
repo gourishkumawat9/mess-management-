@@ -2,65 +2,70 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Clock, MapPin, UtensilsCrossed } from "lucide-react";
+import { ArrowUpRight, Clock, MapPin, Play } from "lucide-react";
 import { Marquee } from "./motion/Marquee";
 
-// Deep maroon footer with a big wordmark, shown on the student-facing pages.
+// Big red footer: a shout-out headline, play-arrow links and a giant outlined
+// wordmark. Shown on the student-facing pages only.
 export function Footer() {
   const pathname = usePathname();
   if (pathname.startsWith("/staff")) return null;
   return (
-    <footer className="relative mt-10 overflow-hidden bg-brand-950 text-cream-100 print:hidden">
+    <footer className="relative mt-16 overflow-hidden border-t-2 border-ink bg-brand-600 text-cream-50 print:hidden">
       <Marquee
-        className="border-y border-white/10 bg-brand-600 py-3 font-display text-lg font-bold uppercase tracking-wide text-white"
-        items={["Order ahead", "Skip the queue", "Hot & fresh", "Pickup or room delivery", "Pay by cash or UPI"]}
+        className="border-b-2 border-ink bg-gold-400 py-3 font-display text-2xl uppercase text-ink"
+        separatorClassName="text-brand-600"
+        items={["Maggi mania", "Manchurian", "Noodles", "Egg items", "Wraps & rolls", "Good food, good mood"]}
       />
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr]">
         <div>
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-600">
-            <UtensilsCrossed className="h-6 w-6" />
-          </span>
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-cream-100/70">
-            The mess canteen of the Indian Institute of Management Sambalpur, now on your phone. Order, track and collect,
-            while the mess team keeps the kitchen stocked from the same app.
-          </p>
+          <p className="scribble text-3xl text-gold-300">Hungry at 2 AM?</p>
+          <h2 className="display mt-2 text-6xl sm:text-7xl">Late night cravings, sorted.</h2>
+          <Link href="/#menu" className="btn-secondary btn-xl mt-8">
+            Order now <ArrowUpRight className="h-5 w-5" />
+          </Link>
         </div>
-        <div className="text-sm">
-          <p className="label !text-gold-300">Find us</p>
-          <p className="mt-3 flex gap-2 text-cream-100/80">
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-300" /> Mess building, IIM Sambalpur campus, Sambalpur, Odisha
-          </p>
-          <p className="mt-3 flex gap-2 text-cream-100/80">
-            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-gold-300" /> Timings shown on the canteen page
-          </p>
-        </div>
-        <div className="text-sm">
-          <p className="label !text-gold-300">Quick links</p>
-          <ul className="mt-3 space-y-2">
+        <div>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-gold-300">Jump to</p>
+          <ul className="mt-4 space-y-2">
             {[
-              ["/", "Canteen menu"],
+              ["/#menu", "Canteen menu"],
               ["/checkout", "Your cart"],
               ["/orders", "My orders"],
               ["/login", "Log in"],
             ].map(([href, label]) => (
               <li key={href}>
-                <Link href={href} className="text-cream-100/80 transition hover:text-white hover:underline hover:underline-offset-4">
+                <Link
+                  href={href}
+                  className="group inline-flex items-center gap-3 font-display text-2xl uppercase transition hover:text-gold-300"
+                >
+                  <Play className="h-4 w-4 fill-current transition duration-300 group-hover:translate-x-1" />
                   {label}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
+        <div className="text-sm">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-gold-300">Find us</p>
+          <p className="mt-4 flex gap-2 font-medium text-cream-50/90">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-300" /> Mess building, IIM Sambalpur campus, Sambalpur, Odisha
+          </p>
+          <p className="mt-3 flex gap-2 font-medium text-cream-50/90">
+            <Clock className="mt-0.5 h-4 w-4 shrink-0 text-gold-300" /> Timings are on the menu page
+          </p>
+        </div>
       </div>
       <p
         aria-hidden
-        className="pointer-events-none -mb-[0.18em] select-none whitespace-nowrap px-2 text-center font-display text-[14.5vw] font-extrabold leading-none tracking-tighter text-white/[0.06]"
+        className="text-outline-cream pointer-events-none -mb-[0.12em] select-none whitespace-nowrap text-center font-display text-[16vw] uppercase leading-none opacity-60"
       >
         IIMS Canteen
       </p>
-      <div className="border-t border-white/10">
-        <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-cream-100/50 sm:px-6">
-          © IIM Sambalpur Mess &amp; Canteen · Photos from Unsplash, see PHOTO_CREDITS.md
+      <div className="border-t-2 border-ink bg-ink">
+        <p className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-4 text-xs font-medium text-cream-50/60 sm:px-6">
+          <span>© IIM Sambalpur Mess &amp; Canteen</span>
+          <span>Good food · Good mood</span>
         </p>
       </div>
     </footer>

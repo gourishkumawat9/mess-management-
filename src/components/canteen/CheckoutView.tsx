@@ -81,7 +81,7 @@ export function CheckoutView({
       <main className="page max-w-2xl">
         <div className="card mt-6 p-10 text-center">
           <p className="text-5xl">🛍️</p>
-          <h1 className="mt-3 text-xl font-bold text-ink">Your cart is empty</h1>
+          <h1 className="page-title mt-3">Your cart is empty</h1>
           <p className="mt-1 text-sm text-zinc-500">Add something tasty from the canteen menu.</p>
           <Link href="/" className="btn-primary mt-5">
             Browse the menu

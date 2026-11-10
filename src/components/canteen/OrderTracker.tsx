@@ -95,34 +95,34 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
       </Link>
 
       {justPlaced && order.status === "PLACED" && (
-        <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200">
+        <div className="mt-4 rounded-2xl border-2 border-ink bg-veg p-4 text-sm font-bold text-white shadow-hard-sm">
           Order placed! We&apos;ll update this page as the canteen works on it.
         </div>
       )}
 
       <section
         className={clsx(
-          "relative mt-4 overflow-hidden rounded-[2rem] p-7 text-white shadow-lift",
+          "relative mt-4 overflow-hidden rounded-[2rem] border-2 border-ink p-7 text-white shadow-hard-lg",
           order.status === "CANCELLED"
             ? "bg-zinc-700"
             : order.status === "READY"
-              ? "bg-gradient-to-br from-emerald-600 to-emerald-500"
-              : "bg-gradient-to-br from-brand-950 via-brand-800 to-brand-600",
+              ? "bg-emerald-600"
+              : "bg-brand-600",
         )}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-white/80">{meta.label}</p>
-            <h1 className="display mt-2 text-3xl sm:text-4xl">{meta.hint}</h1>
+            <p className="scribble text-2xl text-gold-300">{meta.label}</p>
+            <h1 className="display mt-1 text-5xl sm:text-6xl">{meta.hint}</h1>
             <p className="mt-2 text-sm text-white/80">Placed {formatDateTime(order.createdAt)}</p>
           </div>
-          <div className="shrink-0 rounded-3xl bg-gold-400 px-5 py-4 text-center text-ink shadow-lg">
+          <div className="shrink-0 rotate-3 rounded-3xl border-2 border-ink bg-gold-400 px-5 py-4 text-center text-ink shadow-hard">
             <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-ink/70">Token</p>
-            <p className="font-display text-5xl font-extrabold leading-none">{order.token}</p>
+            <p className="font-display text-6xl leading-none">{order.token}</p>
           </div>
         </div>
         {order.status === "READY" && (
-          <p className="mt-4 rounded-2xl bg-white/15 p-3 text-sm font-semibold">
+          <p className="mt-5 rounded-2xl border-2 border-white/40 bg-white/10 p-3 text-sm font-semibold">
             {delivery
               ? `Your food is being brought to ${where}. Token #${order.token}.`
               : `Show token #${order.token} at the canteen counter to collect your food.`}

@@ -4,6 +4,7 @@ import { CartProvider } from "@/components/CartProvider";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { RevealObserver } from "@/components/motion/Reveal";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Footer />
         </CartProvider>
         <RevealObserver />
+        <SmoothScroll />
       </body>
     </html>
   );
