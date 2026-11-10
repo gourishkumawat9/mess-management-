@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Boxes, ClipboardList, IndianRupee, TriangleAlert } from "lucide-react";
+import { ArrowRight, Bike, Boxes, ClipboardList, IndianRupee, TriangleAlert } from "lucide-react";
 import { CanteenToggle } from "@/components/staff/CanteenToggle";
 import { ExpiryBadge, StockBadge } from "@/components/staff/StockBadge";
 import { requirePageUser } from "@/lib/auth";
-import { MOVEMENT_LABELS, inventoryCategory, type MovementType } from "@/lib/constants";
+import {
+  CANTEEN_ROLES,
+  MESS_ROLES,
+  MOVEMENT_LABELS,
+  STAFF_ROLES,
+  hasRole,
+  inventoryCategory,
+  type MovementType,
+} from "@/lib/constants";
 import { formatDate, formatDays, formatQty, formatWhen } from "@/lib/format";
 import { getCanteenSettings } from "@/server/canteen";
 import { getDashboard } from "@/server/dashboard";
@@ -12,9 +20,14 @@ import { getDashboard } from "@/server/dashboard";
 export const metadata: Metadata = { title: "Staff dashboard" };
 
 export default async function StaffDashboard() {
-  const user = await requirePageUser(["STAFF", "ADMIN"], "/staff");
-  const [data, settings] = await Promise.all([getDashboard(), getCanteenSettings()]);
+  const user = await requirePageUser(STAFF_ROLES, "/staff");
+  // One dashboard per team: canteen staff see the canteen, mess kitchen staff
+  // see the mess, and the owner (and combined staff) see both.
+  const canteen = hasRole(user.role, CANTEEN_ROLES);
+  const mess = hasRole(user.role, MESS_ROLES);
+  const [data, settings] = await Promise.all([getDashboard({ canteen, mess }), getCanteenSettings()]);
   const now = new Date();
+  const heading = canteen && mess ? (user.role === "ADMIN" ? "Owner dashboard" : "Canteen & mess") : canteen ? "Canteen dashboard" : "Mess kitchen dashboard";
 
   const tiles = [
     {
@@ -24,6 +37,7 @@ export default async function StaffDashboard() {
       Icon: TriangleAlert,
       tone: "text-red-600 bg-red-50",
       href: "/staff/inventory/restock",
+      show: mess,
     },
     {
       label: "Restock by tomorrow",
@@ -32,6 +46,7 @@ export default async function StaffDashboard() {
       Icon: Boxes,
       tone: "text-amber-700 bg-amber-50",
       href: "/staff/inventory?filter=restock",
+      show: mess,
     },
     {
       label: "Canteen orders today",
@@ -40,6 +55,16 @@ export default async function StaffDashboard() {
       Icon: ClipboardList,
       tone: "text-sky-700 bg-sky-50",
       href: "/staff/orders",
+      show: canteen,
+    },
+    {
+      label: "Deliveries in progress",
+      value: data.orders.activeDeliveries,
+      hint: "To hostel rooms",
+      Icon: Bike,
+      tone: "text-violet-700 bg-violet-50",
+      href: "/staff/orders",
+      show: canteen && !mess,
     },
     {
       label: "Canteen sales today",
@@ -48,20 +73,23 @@ export default async function StaffDashboard() {
       Icon: IndianRupee,
       tone: "text-emerald-700 bg-emerald-50",
       href: "/staff/orders",
+      show: canteen,
     },
-  ];
+  ].filter((t) => t.show);
 
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-zinc-500">{formatDate(now)}</p>
+          <p className="text-sm text-zinc-500">
+            {heading} · {formatDate(now)}
+          </p>
           <h1 className="page-title">Hello, {user.name.split(" ")[0]}</h1>
         </div>
-        <CanteenToggle open={settings.open} />
+        {canteen && <CanteenToggle open={settings.open} />}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className={`mt-6 grid grid-cols-2 gap-3 ${tiles.length > 2 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         {tiles.map(({ label, value, hint, Icon, tone, href }) => (
           <Link key={label} href={href} className="card p-4 transition hover:shadow-lg">
             <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}>
@@ -75,6 +103,7 @@ export default async function StaffDashboard() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
+        {mess && (
         <section className="card xl:col-span-2">
           <div className="flex items-center justify-between border-b border-zinc-100 p-4">
             <h2 className="font-bold text-zinc-900">Restock alerts</h2>
@@ -107,8 +136,10 @@ export default async function StaffDashboard() {
             </ul>
           )}
         </section>
+        )}
 
         <div className="space-y-6">
+          {canteen && (
           <section className="card p-4">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-zinc-900">Top sellers today</h2>
@@ -132,7 +163,9 @@ export default async function StaffDashboard() {
               </ol>
             )}
           </section>
+          )}
 
+          {mess && (
           <section className="card p-4">
             <h2 className="font-bold text-zinc-900">Recent stock updates</h2>
             {data.movements.length === 0 ? (
@@ -158,6 +191,7 @@ export default async function StaffDashboard() {
               </ul>
             )}
           </section>
+          )}
         </div>
       </div>
     </div>

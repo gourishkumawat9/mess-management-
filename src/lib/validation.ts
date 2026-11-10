@@ -5,6 +5,7 @@ import {
   MAX_ITEM_QUANTITY,
   MAX_ORDER_LINES,
   MOVEMENT_TYPES,
+  FULFILMENTS,
   ORDER_STATUSES,
   PAYMENT_METHODS,
   ROLES,
@@ -33,6 +34,8 @@ export const registerSchema = z.object({
     .nullable()
     .transform((v) => (v ? v : null)),
   password: z.string().min(8, "Password must be at least 8 characters").max(100),
+  hostel: optionalText(40),
+  room: optionalText(20),
 });
 
 export const loginSchema = z.object({
@@ -135,6 +138,13 @@ export const placeOrderSchema = z.object({
     .max(MAX_ORDER_LINES),
   paymentMethod: z.enum(PAYMENT_METHODS),
   note: optionalText(200),
+  fulfilment: z.enum(FULFILMENTS).default("PICKUP"),
+  hostel: optionalText(40),
+  room: optionalText(20),
+}).superRefine((o, ctx) => {
+  if (o.fulfilment !== "DELIVERY") return;
+  if (!o.hostel) ctx.addIssue({ code: "custom", path: ["hostel"], message: "Enter your hostel for delivery" });
+  if (!o.room) ctx.addIssue({ code: "custom", path: ["room"], message: "Enter your room number for delivery" });
 });
 
 export const staffOrderUpdateSchema = z.object({

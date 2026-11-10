@@ -55,7 +55,16 @@ function seedPassword(envName: string, demo: string, required = false): { value:
   return { value: randomBytes(24).toString("base64url"), known: false };
 }
 
-type Account = { name: string; email: string; role: string; password: string; known: boolean; phone?: string };
+type Account = {
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+  known: boolean;
+  phone?: string;
+  hostel?: string;
+  room?: string;
+};
 function accounts(): Account[] | null {
   const admin = seedPassword("SEED_ADMIN_PASSWORD", "Admin@123", true);
   if (!admin) return null;
@@ -71,16 +80,28 @@ function accounts(): Account[] | null {
   if (!DEMO) return list;
   const staff = seedPassword("SEED_STAFF_PASSWORD", "Staff@123")!;
   const student = seedPassword("SEED_STUDENT_PASSWORD", "Student@123")!;
-  const member = (name: string, email: string) => ({ name, email, role: "USER", password: student.value, known: student.known });
+  const member = (name: string, email: string, hostel?: string, room?: string) => ({
+    name,
+    email,
+    role: "USER",
+    password: student.value,
+    known: student.known,
+    hostel,
+    room,
+  });
+  const worker = (name: string, email: string, role: string, phone: string) => ({ name, email, role, password: staff.value, known: staff.known, phone });
   return [
     ...list,
-    { name: "Ramesh Kumar", email: `staff@${DOMAIN}`, role: "STAFF", password: staff.value, known: staff.known, phone: "98765 43210" },
-    { ...member("Demo Student", `student@${DOMAIN}`), phone: "91234 56789" },
+    // One login per team; they share the staff password.
+    worker("Ramesh Kumar", `staff@${DOMAIN}`, "STAFF", "98765 43210"),
+    worker("Sunita Behera", `canteen@${DOMAIN}`, "CANTEEN", "98765 43211"),
+    worker("Bikash Sahu", `mess@${DOMAIN}`, "MESS", "98765 43212"),
+    { ...member("Demo Student", `student@${DOMAIN}`, "H3", "214"), phone: "91234 56789" },
     // Extra members so the order board looks lived-in. They share the student password.
-    member("Aarav Sharma", `aarav.s@${DOMAIN}`),
-    member("Priya Nair", `priya.n@${DOMAIN}`),
-    member("Rohan Das", `rohan.d@${DOMAIN}`),
-    member("Sneha Patel", `sneha.p@${DOMAIN}`),
+    member("Aarav Sharma", `aarav.s@${DOMAIN}`, "H1", "108"),
+    member("Priya Nair", `priya.n@${DOMAIN}`, "H2", "305"),
+    member("Rohan Das", `rohan.d@${DOMAIN}`, "H1", "221"),
+    member("Sneha Patel", `sneha.p@${DOMAIN}`, "H2", "117"),
     member("Prof. K. Mishra", `k.mishra@${DOMAIN}`),
   ];
 }
@@ -223,7 +244,7 @@ async function main() {
   const today = startOfDayIST(now);
 
   // Accounts
-  const users: Record<string, { id: string; name: string }> = {};
+  const users: Record<string, { id: string; name: string; hostel: string | null; room: string | null }> = {};
   for (const a of ACCOUNTS) {
     const u = await prisma.user.create({
       data: {
@@ -231,6 +252,8 @@ async function main() {
         email: a.email,
         role: a.role,
         phone: a.phone ?? null,
+        hostel: a.hostel ?? null,
+        room: a.room ?? null,
         passwordHash: await bcrypt.hash(a.password, 10),
         createdAt: new Date(today.getTime() - 20 * DAY),
       },
@@ -359,7 +382,7 @@ async function main() {
   // Canteen orders: three past days plus today
   const members = Object.values(users).filter((_, i) => ACCOUNTS[i].role === "USER");
   const sellable = dishes.filter((d) => d.isAvailable);
-  type Plan = { at: Date; status: string; user: { id: string }; note?: string };
+  type Plan = { at: Date; status: string; user: { id: string; hostel: string | null; room: string | null }; note?: string };
   const plans: Plan[] = [];
   for (let d = 3; d >= 1; d--) {
     const dayStart = today.getTime() - d * DAY;
@@ -373,7 +396,7 @@ async function main() {
     }
   }
   const student = users[`student@${DOMAIN}`];
-  const todayPlan: [number, string, { id: string }, string?][] = [
+  const todayPlan: [number, string, Plan["user"], string?][] = [
     [95, "COMPLETED", pick(members)],
     [88, "COMPLETED", pick(members)],
     [80, "COMPLETED", student],
@@ -411,6 +434,7 @@ async function main() {
     const t = p.at.getTime();
     const later = (mins: number) => new Date(Math.min(t + mins * 60 * 1000, now.getTime()));
     const stage = ["PLACED", "PREPARING", "READY", "COMPLETED"].indexOf(p.status); // -1 when cancelled
+    const delivery = !!p.user.hostel && rand() < 0.5;
 
     await prisma.order.create({
       data: {
@@ -421,6 +445,9 @@ async function main() {
         paymentMethod: rand() < 0.7 ? "UPI" : "CASH",
         isPaid: p.status === "COMPLETED",
         note: p.note ?? null,
+        fulfilment: delivery ? "DELIVERY" : "PICKUP",
+        deliveryHostel: delivery ? p.user.hostel : null,
+        deliveryRoom: delivery ? p.user.room : null,
         createdAt: p.at,
         updatedAt: stage === 3 ? later(18) : stage === -1 ? later(3) : p.at,
         preparingAt: stage >= 1 ? later(2) : null,
@@ -448,7 +475,7 @@ function report(list: Account[], dishCount: number, orderCount: number) {
   for (const a of list.slice(0, 3)) {
     // Never print passwords on a live deployment (build logs are shared).
     const shown = a.known ? (LIVE ? "(password from your environment settings)" : a.password) : "(random password; not for login)";
-    console.log(`  ${a.role.padEnd(5)}  ${a.email}  /  ${shown}`);
+    console.log(`  ${a.role.padEnd(7)}  ${a.email}  /  ${shown}`);
   }
 }
 

@@ -13,9 +13,11 @@ The canteen menu is a **placeholder** until the real one is ready. Edit it from 
 
 | Role | How you get it | Can do |
 | --- | --- | --- |
-| **Member** (students, faculty, staff) | Sign up at `/register` | Order from the canteen, track and cancel their own orders |
-| **Mess staff** | An admin promotes them | Everything above, plus the staff area: live order board, canteen menu, inventory |
-| **Admin** | Seeded, or promoted by another admin | Everything above, plus **Users & roles** |
+| **Member** (students, faculty, staff) | Sign up at `/register` | Order from the canteen for pickup or delivery to their hostel room, track and cancel their own orders |
+| **Canteen staff** | An admin sets the role | Canteen dashboard: live order board (with delivery addresses), canteen menu, open/close the canteen |
+| **Mess kitchen staff** | An admin sets the role | Mess dashboard: inventory, daily stock count, restock list |
+| **Canteen + mess staff** | An admin sets the role | Both of the above (the original single staff role) |
+| **Owner / Admin** | Seeded, or promoted by another admin | Everything, on one combined dashboard, plus **Users & roles** |
 
 ## Run it locally
 
@@ -34,7 +36,9 @@ Demo logins (passwords come from `SEED_*_PASSWORD` in `.env`; these are the defa
 | Role | Email | Password |
 | --- | --- | --- |
 | Admin | admin@iimsambalpur.ac.in | Admin@123 |
-| Mess staff | staff@iimsambalpur.ac.in | Staff@123 |
+| Canteen staff | canteen@iimsambalpur.ac.in | Staff@123 |
+| Mess kitchen staff | mess@iimsambalpur.ac.in | Staff@123 |
+| Canteen + mess staff | staff@iimsambalpur.ac.in | Staff@123 |
 | Member | student@iimsambalpur.ac.in | Student@123 |
 
 Change these passwords (or don't seed demo accounts) before real use.
@@ -55,7 +59,7 @@ Change these passwords (or don't seed demo accounts) before real use.
 
 ## Screens
 
-**Members:** `/` canteen menu (search, veg-only, bestsellers, category jump) · `/checkout` cart, note for the kitchen, cash/UPI · `/orders` order history · `/orders/[id]` live tracking with the token number.
+**Members:** `/` canteen menu (search, veg-only, bestsellers, category jump) · `/checkout` cart, delivery to hostel & room or pickup, note for the kitchen, cash/UPI · `/orders` order history · `/orders/[id]` live tracking with the token number.
 
 **Staff** (`/staff`):
 

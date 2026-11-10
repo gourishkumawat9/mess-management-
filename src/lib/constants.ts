@@ -1,13 +1,34 @@
 // Allowed values for the string "enum" columns in prisma/schema.prisma.
 
-export const ROLES = ["USER", "STAFF", "ADMIN"] as const;
+// The canteen and the mess are run by different teams under one owner:
+//   CANTEEN - canteen counter: live orders, canteen menu, open/close
+//   MESS    - mess kitchen: inventory, daily stock count, restock list
+//   STAFF   - works both (the original single staff role, kept as is)
+//   ADMIN   - the owner: everything, plus users & roles
+export const ROLES = ["USER", "CANTEEN", "MESS", "STAFF", "ADMIN"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const ROLE_LABELS: Record<Role, string> = {
   USER: "Student / Member",
-  STAFF: "Mess staff",
-  ADMIN: "Admin",
+  CANTEEN: "Canteen staff",
+  MESS: "Mess kitchen staff",
+  STAFF: "Canteen + mess staff",
+  ADMIN: "Owner / Admin",
 };
+
+/** Anyone with a staff dashboard. */
+export const STAFF_ROLES: Role[] = ["CANTEEN", "MESS", "STAFF", "ADMIN"];
+/** Canteen orders, canteen menu and the open/close switch. */
+export const CANTEEN_ROLES: Role[] = ["CANTEEN", "STAFF", "ADMIN"];
+/** Mess inventory, stock counts and restocking. */
+export const MESS_ROLES: Role[] = ["MESS", "STAFF", "ADMIN"];
+
+export function hasRole(role: Role | undefined | null, roles: readonly Role[]) {
+  return !!role && roles.includes(role);
+}
+
+export const FULFILMENTS = ["PICKUP", "DELIVERY"] as const;
+export type Fulfilment = (typeof FULFILMENTS)[number];
 
 export const INVENTORY_CATEGORIES = [
   { id: "VEGETABLES", label: "Vegetables", emoji: "🥬" },

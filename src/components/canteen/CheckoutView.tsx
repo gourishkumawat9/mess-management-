@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { ArrowLeft, Banknote, LoaderCircle, Minus, Plus, Smartphone, Store, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Banknote, Bike, LoaderCircle, Minus, Plus, Smartphone, Store, TriangleAlert } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { VegMark } from "@/components/VegMark";
 import { api } from "@/lib/client";
-import type { PaymentMethod } from "@/lib/constants";
+import type { Fulfilment, PaymentMethod } from "@/lib/constants";
 import { DishImage } from "./DishImage";
 
 type MenuIndex = Record<string, { name: string; price: number; available: boolean }>;
@@ -18,16 +18,25 @@ export function CheckoutView({
   open,
   hours,
   userName,
+  savedHostel,
+  savedRoom,
 }: {
   menu: MenuIndex;
   open: boolean;
   hours: string;
   userName: string;
+  savedHostel: string | null;
+  savedRoom: string | null;
 }) {
   const router = useRouter();
   const cart = useCart();
   const [note, setNote] = useState("");
   const [payment, setPayment] = useState<PaymentMethod>("UPI");
+  const [fulfilment, setFulfilment] = useState<Fulfilment>("DELIVERY");
+  const [hostel, setHostel] = useState(savedHostel ?? "");
+  const [room, setRoom] = useState(savedRoom ?? "");
+  const delivery = fulfilment === "DELIVERY";
+  const addressMissing = delivery && (!hostel.trim() || !room.trim());
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +59,9 @@ export function CheckoutView({
           items: cart.lines.map((l) => ({ menuItemId: l.menuItemId, quantity: l.quantity })),
           paymentMethod: payment,
           note,
+          fulfilment,
+          hostel: delivery ? hostel : null,
+          room: delivery ? room : null,
         },
       });
       cart.clear();
@@ -86,7 +98,8 @@ export function CheckoutView({
       </Link>
       <h1 className="page-title mt-3">Your order</h1>
       <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-500">
-        <Store className="h-4 w-4" /> Pickup from the mess canteen counter
+        {delivery ? <Bike className="h-4 w-4" /> : <Store className="h-4 w-4" />}
+        {delivery ? "Delivered to your hostel room" : "Pickup from the mess canteen counter"}
       </p>
 
       {!open && (
@@ -145,6 +158,47 @@ export function CheckoutView({
       </section>
 
       <section className="card mt-4 p-4">
+        <p className="label">Delivery or pickup</p>
+        <div className="grid grid-cols-2 gap-3">
+          {(
+            [
+              { id: "DELIVERY", label: "Deliver to my room", hint: "Hostel & room below", Icon: Bike },
+              { id: "PICKUP", label: "Pick up", hint: "Collect at the counter", Icon: Store },
+            ] as const
+          ).map(({ id, label, hint, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setFulfilment(id)}
+              className={clsx(
+                "flex items-start gap-3 rounded-xl border p-3 text-left transition",
+                fulfilment === id ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-zinc-200 hover:border-zinc-300",
+              )}
+              aria-pressed={fulfilment === id}
+            >
+              <Icon className={clsx("mt-0.5 h-5 w-5", fulfilment === id ? "text-brand-600" : "text-zinc-400")} />
+              <span>
+                <span className="block font-semibold text-zinc-900">{label}</span>
+                <span className="block text-xs text-zinc-500">{hint}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+        {delivery && (
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="hostel" className="label">Hostel</label>
+              <input id="hostel" value={hostel} onChange={(e) => setHostel(e.target.value.slice(0, 40))} className="input" placeholder="e.g. H3" />
+            </div>
+            <div>
+              <label htmlFor="room" className="label">Room no.</label>
+              <input id="room" value={room} onChange={(e) => setRoom(e.target.value.slice(0, 20))} className="input" placeholder="e.g. 214" />
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="card mt-4 p-4">
         <label htmlFor="note" className="label">
           Note for the kitchen (optional)
         </label>
@@ -159,12 +213,12 @@ export function CheckoutView({
       </section>
 
       <section className="card mt-4 p-4">
-        <p className="label">Payment at the counter</p>
+        <p className="label">{delivery ? "Payment on delivery" : "Payment at the counter"}</p>
         <div className="grid grid-cols-2 gap-3">
           {(
             [
-              { id: "UPI", label: "UPI", hint: "Scan the QR at pickup", Icon: Smartphone },
-              { id: "CASH", label: "Cash", hint: "Pay when you collect", Icon: Banknote },
+              { id: "UPI", label: "UPI", hint: delivery ? "Scan the QR on delivery" : "Scan the QR at pickup", Icon: Smartphone },
+              { id: "CASH", label: "Cash", hint: delivery ? "Pay when it arrives" : "Pay when you collect", Icon: Banknote },
             ] as const
           ).map(({ id, label, hint, Icon }) => (
             <button
@@ -215,13 +269,15 @@ export function CheckoutView({
       <div className="sticky bottom-0 -mx-4 mt-6 bg-gradient-to-t from-stone-50 via-stone-50 to-stone-50/0 px-4 pb-4 pt-6 sm:-mx-6 sm:px-6">
         <button
           onClick={placeOrder}
-          disabled={placing || !open || unavailable.length > 0}
+          disabled={placing || !open || unavailable.length > 0 || addressMissing}
           className="btn-primary w-full rounded-2xl py-4 text-base shadow-xl shadow-brand-600/20"
         >
           {placing ? <LoaderCircle className="h-5 w-5 animate-spin" /> : null}
           {placing ? "Placing order…" : `Place order · ₹${cart.total}`}
         </button>
-        <p className="mt-2 text-center text-xs text-zinc-500">Ordering as {userName}</p>
+        <p className="mt-2 text-center text-xs text-zinc-500">
+          {addressMissing ? "Enter your hostel and room number for delivery" : `Ordering as ${userName}`}
+        </p>
       </div>
     </main>
   );

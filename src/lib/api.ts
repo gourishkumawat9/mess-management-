@@ -50,7 +50,7 @@ export async function requireUser(roles?: Role[]): Promise<CurrentUser> {
   return user;
 }
 
-export const STAFF_ROLES: Role[] = ["STAFF", "ADMIN"];
+export { CANTEEN_ROLES, MESS_ROLES, STAFF_ROLES } from "./constants";
 
 export async function readJson<T>(req: Request, schema: ZodType<T>): Promise<T> {
   let body: unknown;

@@ -27,6 +27,8 @@ export const POST = route(async (req) => {
       name: input.name,
       email: input.email,
       phone: input.phone,
+      hostel: input.hostel,
+      room: input.room,
       passwordHash: await hashPassword(input.password),
       role: "USER",
     },

@@ -4,15 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { Boxes, ClipboardCheck, ClipboardList, LayoutDashboard, Truck, Users, UtensilsCrossed } from "lucide-react";
+import { CANTEEN_ROLES, MESS_ROLES, ROLE_LABELS, hasRole, type Role } from "@/lib/constants";
 
-const LINKS = [
+// Each team only sees its own pages; the owner (ADMIN) sees all of them.
+const LINKS: { href: string; label: string; Icon: typeof Users; exact?: boolean; roles?: Role[] }[] = [
   { href: "/staff", label: "Dashboard", Icon: LayoutDashboard, exact: true },
-  { href: "/staff/orders", label: "Live orders", Icon: ClipboardList },
-  { href: "/staff/menu", label: "Canteen menu", Icon: UtensilsCrossed },
-  { href: "/staff/inventory", label: "Inventory", Icon: Boxes },
-  { href: "/staff/inventory/count", label: "Daily stock count", Icon: ClipboardCheck },
-  { href: "/staff/inventory/restock", label: "Restock list", Icon: Truck },
-  { href: "/staff/users", label: "Users & roles", Icon: Users, adminOnly: true },
+  { href: "/staff/orders", label: "Live orders", Icon: ClipboardList, roles: CANTEEN_ROLES },
+  { href: "/staff/menu", label: "Canteen menu", Icon: UtensilsCrossed, roles: CANTEEN_ROLES },
+  { href: "/staff/inventory", label: "Inventory", Icon: Boxes, roles: MESS_ROLES },
+  { href: "/staff/inventory/count", label: "Daily stock count", Icon: ClipboardCheck, roles: MESS_ROLES },
+  { href: "/staff/inventory/restock", label: "Restock list", Icon: Truck, roles: MESS_ROLES },
+  { href: "/staff/users", label: "Users & roles", Icon: Users, roles: ["ADMIN"] },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {
@@ -23,13 +25,13 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function StaffNav({ isAdmin }: { isAdmin: boolean }) {
+export function StaffNav({ role }: { role: Role }) {
   const pathname = usePathname();
-  const links = LINKS.filter((l) => !l.adminOnly || isAdmin);
+  const links = LINKS.filter((l) => !l.roles || hasRole(role, l.roles));
   return (
     <nav className="print:hidden lg:w-56 lg:shrink-0">
       <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 pb-3 lg:sticky lg:top-24 lg:mx-0 lg:flex-col lg:px-0">
-        <p className="label hidden px-3 lg:block">Mess staff</p>
+        <p className="label hidden px-3 lg:block">{ROLE_LABELS[role]}</p>
         {links.map(({ href, label, Icon, exact }) => (
           <Link
             key={href}

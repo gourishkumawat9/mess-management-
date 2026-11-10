@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { LayoutDashboard, LogOut, Receipt, ShoppingBag, UtensilsCrossed } from "lucide-react";
 import { useCart } from "./CartProvider";
 import { api } from "@/lib/client";
-import type { Role } from "@/lib/constants";
+import { STAFF_ROLES, hasRole, type Role } from "@/lib/constants";
 
 export interface HeaderUser {
   name: string;
@@ -18,7 +18,7 @@ export function Header({ user }: { user: HeaderUser | null }) {
   const pathname = usePathname();
   const { count, ready } = useCart();
   const [loggingOut, setLoggingOut] = useState(false);
-  const staff = user?.role === "STAFF" || user?.role === "ADMIN";
+  const staff = hasRole(user?.role, STAFF_ROLES);
   const inStaffArea = pathname.startsWith("/staff");
 
   async function logout() {

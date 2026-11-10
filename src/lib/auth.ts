@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "./db";
-import type { Role } from "./constants";
+import { STAFF_ROLES, hasRole, type Role } from "./constants";
 import { SESSION_COOKIE, verifySession } from "./session";
 
 export interface CurrentUser {
@@ -11,6 +11,8 @@ export interface CurrentUser {
   name: string;
   email: string;
   phone: string | null;
+  hostel: string | null;
+  room: string | null;
   role: Role;
 }
 
@@ -32,21 +34,30 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!claims) return null;
   const user = await prisma.user.findUnique({
     where: { id: claims.sub },
-    select: { id: true, name: true, email: true, phone: true, role: true, active: true },
+    select: { id: true, name: true, email: true, phone: true, hostel: true, room: true, role: true, active: true },
   });
   if (!user || !user.active) return null;
-  return { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role as Role };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    hostel: user.hostel,
+    room: user.room,
+    role: user.role as Role,
+  };
 }
 
 export function isStaff(user: Pick<CurrentUser, "role"> | null) {
-  return user?.role === "STAFF" || user?.role === "ADMIN";
+  return hasRole(user?.role, STAFF_ROLES);
 }
 
 /** For server components and pages: send unauthorised visitors to login. */
 export async function requirePageUser(roles?: Role[], next = "/") {
   const user = await getCurrentUser();
   if (!user) redirect(`/login?next=${encodeURIComponent(next)}`);
-  if (roles && !roles.includes(user.role)) redirect("/");
+  // Staff opening another team's page land on their own dashboard instead.
+  if (roles && !roles.includes(user.role)) redirect(isStaff(user) ? "/staff" : "/");
   return user;
 }
 

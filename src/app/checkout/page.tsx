@@ -18,5 +18,7 @@ export default async function CheckoutPage() {
   const menu = Object.fromEntries(
     dishes.map((d) => [d.id, { name: d.name, price: d.price, available: d.isAvailable && !d.archived }]),
   );
-  return <CheckoutView menu={menu} open={settings.open} hours={settings.hours} userName={user.name} />;
+  return (
+    <CheckoutView menu={menu} open={settings.open} hours={settings.hours} userName={user.name} savedHostel={user.hostel} savedRoom={user.room} />
+  );
 }
