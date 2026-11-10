@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
+import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { RevealObserver } from "@/components/motion/Reveal";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -11,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e23744",
+  themeColor: "#a6192e",
   width: "device-width",
   initialScale: 1,
 };
@@ -20,11 +23,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const user = await getCurrentUser();
   return (
     <html lang="en">
-      <body className="min-h-screen">
+      <body className="flex min-h-screen flex-col">
         <CartProvider>
           <Header user={user ? { name: user.name, role: user.role } : null} />
-          {children}
+          <div className="flex-1">{children}</div>
+          <Footer />
         </CartProvider>
+        <RevealObserver />
+        <SmoothScroll />
       </body>
     </html>
   );

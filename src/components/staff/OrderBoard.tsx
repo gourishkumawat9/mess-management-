@@ -34,8 +34,8 @@ interface BoardData {
 }
 
 const COLUMNS: { status: OrderStatus; title: string; tone: string }[] = [
-  { status: "PLACED", title: "New", tone: "bg-sky-500" },
-  { status: "PREPARING", title: "Preparing", tone: "bg-amber-500" },
+  { status: "PLACED", title: "New", tone: "bg-brand-600" },
+  { status: "PREPARING", title: "Preparing", tone: "bg-gold-400" },
   { status: "READY", title: "Ready to hand over", tone: "bg-emerald-500" },
 ];
 
@@ -130,7 +130,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
         </div>
       </div>
 
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         {COLUMNS.map((col) => {
@@ -151,10 +151,10 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Token</p>
-                          <p className="text-3xl font-black leading-none text-zinc-900">#{order.token}</p>
+                          <p className="text-3xl font-black leading-none text-ink">#{order.token}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-zinc-900">{order.user.name}</p>
+                          <p className="font-semibold text-ink">{order.user.name}</p>
                           <p className="text-xs text-zinc-500" suppressHydrationWarning>
                             {formatTime(order.createdAt)} · {timeAgo(order.createdAt, now)}
                           </p>
@@ -162,7 +162,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                         </div>
                       </div>
                       {order.fulfilment === "DELIVERY" ? (
-                        <p className="mt-3 flex items-center gap-2 rounded-xl bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-900">
+                        <p className="mt-3 flex items-center gap-2 rounded-2xl bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-900">
                           <Bike className="h-4 w-4 shrink-0" />
                           Deliver: Hostel {order.deliveryHostel} · Room {order.deliveryRoom}
                         </p>
@@ -175,16 +175,16 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                         {order.items.map((item) => (
                           <li key={item.id} className="flex items-center gap-2">
                             <VegMark isVeg={item.isVeg} className="scale-90" />
-                            <span className="font-bold text-zinc-900">{item.quantity} ×</span>
+                            <span className="font-bold text-ink">{item.quantity} ×</span>
                             <span className="text-zinc-800">{item.name}</span>
                           </li>
                         ))}
                       </ul>
                       {order.note && (
-                        <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">“{order.note}”</p>
+                        <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">“{order.note}”</p>
                       )}
                       <div className="mt-3 flex items-center justify-between border-t border-dashed border-zinc-200 pt-3 text-sm">
-                        <span className="font-semibold text-zinc-900">
+                        <span className="font-semibold text-ink">
                           ₹{order.total} <span className="font-normal text-zinc-500">· {order.paymentMethod}</span>
                         </span>
                         <button
@@ -192,7 +192,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
                           disabled={busyId === order.id}
                           className={clsx(
                             "rounded-lg px-2.5 py-1 text-xs font-semibold ring-1",
-                            order.isPaid ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-white text-zinc-600 ring-zinc-200 hover:bg-zinc-50",
+                            order.isPaid ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : "bg-white text-zinc-600 ring-zinc-200 hover:bg-cream-100",
                           )}
                         >
                           {order.isPaid ? "Paid ✓" : "Mark paid"}
@@ -222,7 +222,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
       </div>
 
       <section className="card mt-6 overflow-hidden">
-        <h2 className="border-b border-zinc-100 p-4 font-bold text-zinc-900">Finished today</h2>
+        <h2 className="border-b border-zinc-100 p-4 font-bold text-ink">Finished today</h2>
         {data.done.length === 0 ? (
           <p className="p-6 text-center text-sm text-zinc-500">No finished orders yet today.</p>
         ) : (
@@ -231,7 +231,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
               <tbody className="divide-y divide-zinc-100">
                 {data.done.map((o) => (
                   <tr key={o.id}>
-                    <td className="px-4 py-3 font-bold text-zinc-900">#{o.token}</td>
+                    <td className="px-4 py-3 font-bold text-ink">#{o.token}</td>
                     <td className="px-4 py-3 text-zinc-700">
                       {o.user.name}
                       {o.fulfilment === "DELIVERY" && (

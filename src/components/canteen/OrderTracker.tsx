@@ -95,41 +95,41 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
       </Link>
 
       {justPlaced && order.status === "PLACED" && (
-        <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 ring-1 ring-emerald-200">
-          🎉 Order placed! We&apos;ll update this page as the canteen works on it.
+        <div className="mt-4 rounded-2xl border-2 border-ink bg-veg p-4 text-sm font-bold text-white shadow-hard-sm">
+          Order placed! We&apos;ll update this page as the canteen works on it.
         </div>
       )}
 
       <section
         className={clsx(
-          "mt-4 overflow-hidden rounded-3xl p-6 text-white shadow-card",
+          "relative mt-4 overflow-hidden rounded-[2rem] border-2 border-ink p-7 text-white shadow-hard-lg",
           order.status === "CANCELLED"
             ? "bg-zinc-700"
             : order.status === "READY"
-              ? "bg-gradient-to-br from-emerald-600 to-emerald-500"
-              : "bg-gradient-to-br from-brand-700 to-brand-500",
+              ? "bg-emerald-600"
+              : "bg-brand-600",
         )}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-white/80">{meta.label}</p>
-            <h1 className="mt-1 text-2xl font-extrabold">{meta.hint}</h1>
+            <p className="scribble text-2xl text-gold-300">{meta.label}</p>
+            <h1 className="display mt-1 text-5xl sm:text-6xl">{meta.hint}</h1>
             <p className="mt-2 text-sm text-white/80">Placed {formatDateTime(order.createdAt)}</p>
           </div>
-          <div className="shrink-0 rounded-2xl bg-white/15 px-4 py-3 text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-white/80">Token</p>
-            <p className="text-4xl font-black leading-none">{order.token}</p>
+          <div className="shrink-0 rotate-3 rounded-3xl border-2 border-ink bg-gold-400 px-5 py-4 text-center text-ink shadow-hard">
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-ink/70">Token</p>
+            <p className="font-display text-6xl leading-none">{order.token}</p>
           </div>
         </div>
         {order.status === "READY" && (
-          <p className="mt-4 rounded-xl bg-white/15 p-3 text-sm font-semibold">
+          <p className="mt-5 rounded-2xl border-2 border-white/40 bg-white/10 p-3 text-sm font-semibold">
             {delivery
               ? `Your food is being brought to ${where}. Token #${order.token}.`
               : `Show token #${order.token} at the canteen counter to collect your food.`}
           </p>
         )}
         {order.status === "CANCELLED" && order.cancelReason && (
-          <p className="mt-4 rounded-xl bg-white/10 p-3 text-sm">Reason: {order.cancelReason}</p>
+          <p className="mt-4 rounded-2xl bg-white/10 p-3 text-sm">Reason: {order.cancelReason}</p>
         )}
       </section>
 
@@ -157,7 +157,7 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
                     {done && i < currentIndex ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </span>
                   <div className="pt-1.5">
-                    <p className={clsx("font-semibold", done ? "text-zinc-900" : "text-zinc-400")}>{stepLabel(step)}</p>
+                    <p className={clsx("font-semibold", done ? "text-ink" : "text-zinc-400")}>{stepLabel(step)}</p>
                     {stamp && <p className="text-xs text-zinc-500">{formatTime(stamp)}</p>}
                   </div>
                 </li>
@@ -168,12 +168,12 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
       )}
 
       <section className="card mt-4 p-5">
-        <p className="mb-3 flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700">
+        <p className="mb-3 flex items-center gap-2 rounded-2xl bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700">
           {delivery ? <Bike className="h-4 w-4" /> : <Store className="h-4 w-4" />}
           {delivery ? `Delivery to ${where}` : "Pickup at the canteen counter"}
         </p>
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-zinc-900">Order summary</h2>
+          <h2 className="text-xl font-extrabold tracking-tight text-ink">Order summary</h2>
           <OrderStatusBadge status={order.status} />
         </div>
         <ul className="mt-3 divide-y divide-zinc-100">
@@ -187,8 +187,8 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
             </li>
           ))}
         </ul>
-        {order.note && <p className="mt-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">Note: {order.note}</p>}
-        <div className="mt-3 flex justify-between border-t border-dashed border-zinc-200 pt-3 font-bold text-zinc-900">
+        {order.note && <p className="mt-2 rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">Note: {order.note}</p>}
+        <div className="mt-3 flex justify-between border-t border-dashed border-zinc-200 pt-3 font-bold text-ink">
           <span>Total</span>
           <span>₹{order.total}</span>
         </div>
@@ -197,7 +197,7 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
         </p>
       </section>
 
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {customerCanCancel(order.status) && (
         <button onClick={cancel} disabled={cancelling} className="btn-danger mt-4 w-full">
           <CircleX className="h-4 w-4" /> {cancelling ? "Cancelling…" : "Cancel order"}

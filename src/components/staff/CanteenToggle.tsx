@@ -31,8 +31,8 @@ export function CanteenToggle({ open: initial }: { open: boolean }) {
       onClick={toggle}
       disabled={busy}
       className={clsx(
-        "inline-flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold ring-1 transition",
-        open ? "bg-emerald-50 text-emerald-800 ring-emerald-200" : "bg-zinc-100 text-zinc-700 ring-zinc-200",
+        "inline-flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold shadow-sm ring-1 transition",
+        open ? "bg-emerald-50 text-emerald-800 ring-emerald-200" : "bg-white text-zinc-700 ring-zinc-200",
       )}
       aria-pressed={open}
     >

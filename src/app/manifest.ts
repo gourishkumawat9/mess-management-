@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Order from the IIM Sambalpur mess canteen.",
     start_url: "/",
     display: "standalone",
-    background_color: "#fafaf9",
-    theme_color: "#e23744",
+    background_color: "#fbf5ec",
+    theme_color: "#a6192e",
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
   };
 }

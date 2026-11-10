@@ -1,3 +1,7 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/anton";
+@import "@fontsource/caveat-brush";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,61 +14,102 @@ html {
   scroll-padding-top: 8rem;
 }
 
+/* Lenis smooth scrolling (see SmoothScroll.tsx) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 body {
-  @apply bg-stone-50 text-zinc-800 antialiased;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    "Noto Sans",
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji";
+  @apply bg-cream-100 font-sans text-zinc-800 antialiased;
+  /* A faint paper grain so the cream never looks flat. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.03 0 0 0 0 0.05 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+h1,
+h2 {
+  @apply font-display font-normal;
+}
+
+/* Anton has one weight; never let the browser fake a bold. */
+.font-display,
+h1,
+h2 {
+  font-synthesis: none;
+  letter-spacing: 0.005em;
+}
+
+::selection {
+  @apply bg-gold-400 text-ink;
 }
 
 @layer components {
+  /* Buttons: pill, inked border, hard shadow that "presses" on click. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 px-5 py-2.5 text-sm font-bold transition-[transform,box-shadow,background-color,color] duration-200 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold-400 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700;
+    @apply btn border-ink bg-brand-600 text-white shadow-hard-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:hover:translate-x-0 disabled:hover:translate-y-0;
   }
   .btn-secondary {
-    @apply btn bg-white text-zinc-800 ring-1 ring-zinc-200 hover:bg-zinc-50;
+    @apply btn border-ink bg-white text-ink shadow-hard-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-gold-300 hover:shadow-hard active:translate-x-[3px] active:translate-y-[3px] active:shadow-none;
   }
   .btn-ghost {
-    @apply btn text-zinc-600 hover:bg-zinc-100;
+    @apply btn border-transparent text-ink/70 hover:bg-ink/5 hover:text-ink;
   }
   .btn-danger {
-    @apply btn bg-white text-red-600 ring-1 ring-red-200 hover:bg-red-50;
+    @apply btn border-red-700 bg-white text-red-700 hover:bg-red-50;
   }
   .btn-sm {
-    @apply rounded-lg px-3 py-1.5 text-xs;
+    @apply border-[1.5px] px-3.5 py-1.5 text-xs;
   }
+  .btn-xl {
+    @apply px-8 py-4 font-display text-lg uppercase tracking-wide;
+  }
+
+  /* Cards: white, inked outline, small hard shadow. */
   .card {
-    @apply rounded-2xl bg-white shadow-card ring-1 ring-black/5;
+    @apply rounded-[1.25rem] border-2 border-ink bg-white shadow-hard-sm;
+  }
+  .card-hover {
+    @apply transition-[transform,box-shadow] duration-300 ease-out hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard-lg;
   }
   .input {
-    @apply block w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+    @apply block w-full rounded-2xl border-2 border-ink/15 bg-white px-4 py-2.5 text-sm text-zinc-900 transition placeholder:text-zinc-400 focus:border-ink focus:outline-none focus:ring-4 focus:ring-gold-400/40;
   }
   .label {
-    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-zinc-500;
+    @apply mb-1.5 block font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-ink/55;
   }
   .chip {
-    @apply inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300;
+    @apply inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-ink bg-white px-4 py-1.5 text-sm font-bold text-ink transition duration-200 hover:bg-gold-300;
   }
   .chip-active {
-    @apply border-brand-600 bg-brand-50 text-brand-700;
+    @apply bg-ink text-cream-50 hover:bg-ink;
   }
   .page {
-    @apply mx-auto w-full max-w-6xl px-4 pb-24 pt-6 sm:px-6;
+    @apply mx-auto w-full max-w-6xl animate-page-in px-4 pb-24 pt-8 sm:px-6;
   }
   .page-title {
-    @apply text-2xl font-bold tracking-tight text-zinc-900;
+    @apply font-display text-4xl uppercase leading-none text-ink sm:text-5xl;
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-brand-600;
+  }
+  .display {
+    @apply font-display uppercase leading-[0.88];
+  }
+  /* Sticker label, like a price tag slapped on the page. */
+  .tag {
+    @apply inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-gold-400 px-3 py-1 text-xs font-bold uppercase tracking-wide text-ink shadow-hard-sm;
+  }
+  .scribble {
+    @apply font-script font-normal normal-case tracking-normal;
   }
 }
 
@@ -74,5 +119,90 @@ body {
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+  .text-outline {
+    -webkit-text-stroke: 2px #22090e;
+    color: transparent;
+  }
+  .text-outline-cream {
+    -webkit-text-stroke: 2px #fbf5ec;
+    color: transparent;
+  }
+}
+
+/* Scroll reveal: elements start lower and transparent, then ease in when
+   <RevealObserver> marks them as shown. Without JS they stay visible. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal="zoom"] {
+  transform: scale(0.88) rotate(-3deg);
+}
+.js [data-reveal="left"] {
+  transform: translateX(-60px);
+}
+.js [data-reveal="right"] {
+  transform: translateX(60px);
+}
+.js [data-reveal="drop"] {
+  transform: translateY(-80px) rotate(var(--r, -8deg));
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.js [data-reveal][data-shown] {
+  opacity: 1;
+  transform: none;
+}
+.js [data-reveal="drop"][data-shown] {
+  transform: rotate(var(--r, -8deg));
+}
+
+/* Headline words slide up out of a mask, one after another. */
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.04em 0 0.06em;
+  margin: -0.04em 0 -0.06em;
+}
+.split-word > span {
+  display: inline-block;
+  animation: word-up 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 150ms);
+}
+@keyframes word-up {
+  from {
+    transform: translateY(110%) rotate(6deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Scroll-scrubbed words (ScrollWords.tsx): each word fills in as you scroll. */
+.scroll-word {
+  transition: color 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .js [data-reveal],
+  .js [data-reveal="drop"] {
+    opacity: 1;
+    transform: none;
   }
 }

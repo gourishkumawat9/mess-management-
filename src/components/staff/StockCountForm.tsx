@@ -82,7 +82,7 @@ export function StockCountForm({ items }: { items: CountRow[] }) {
       <div className="mt-6 space-y-4">
         {groups.map((g) => (
           <section key={g.id} className="card overflow-hidden">
-            <h2 className="flex items-center gap-2 border-b border-zinc-100 px-4 py-3 font-bold text-zinc-900">
+            <h2 className="flex items-center gap-2 border-b border-zinc-100 px-4 py-3 font-bold text-ink">
               <span>{g.emoji}</span> {g.label}
             </h2>
             <ul className="divide-y divide-zinc-100">
@@ -92,7 +92,7 @@ export function StockCountForm({ items }: { items: CountRow[] }) {
                 return (
                   <li key={item.id} className="flex items-center gap-3 px-4 py-2.5">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium text-zinc-900">{item.name}</p>
+                      <p className="truncate font-medium text-ink">{item.name}</p>
                       <p className="text-xs text-zinc-500">System: {formatQty(item.quantity, item.unit)}</p>
                     </div>
                     {diff !== null && Math.abs(diff) > 1e-9 && (

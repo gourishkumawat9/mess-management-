@@ -107,59 +107,40 @@ function accounts(): Account[] | null {
 }
 
 // ---------------------------------------------------------------------- menu
-// Placeholder menu: prices in whole rupees. [name, price, isVeg, emoji, description, bestseller?, available?]
+// Night Canteen menu (from the printed menu board): prices in whole rupees.
+// [name, price, isVeg, emoji, description, bestseller?, available?]
+// Bestseller flags are a guess until the canteen confirms its popular items.
 type Dish = [string, number, boolean, string, string, boolean?, boolean?];
 const MENU: Record<string, Dish[]> = {
-  "Tea & Coffee": [
-    ["Masala Chai", 15, true, "☕", "Kadak chai with ginger and elaichi", true],
-    ["Filter Coffee", 20, true, "☕", "South Indian style, strong and frothy"],
-    ["Hot Chocolate", 40, true, "🍫", "Rich cocoa with hot milk"],
-    ["Green Tea", 20, true, "🍵", "Light and refreshing"],
+  "Maggi Mania": [
+    ["Plain Maggi", 55, true, "🍜", ""],
+    ["Veg Maggi", 65, true, "🍜", ""],
+    ["Egg Maggi", 70, false, "🍳", ""],
+    ["Veg Cheese Maggi", 80, true, "🧀", "", true],
+    ["Egg Cheese Maggi", 90, false, "🧀", ""],
+    ["Chicken Maggi", 110, false, "🍗", ""],
   ],
-  "Shakes & Coolers": [
-    ["Cold Coffee", 50, true, "🧋", "Thick, chilled and lightly sweet", true],
-    ["Fresh Lime Soda", 35, true, "🍋", "Sweet, salted or mixed"],
-    ["Mango Shake", 60, true, "🥭", "Made with Alphonso pulp"],
-    ["Sweet Lassi", 40, true, "🥛", "Thick curd lassi, served chilled"],
-    ["Oreo Shake", 70, true, "🥤", "Blended with vanilla ice cream"],
+  Manchurian: [
+    ["Manchurian", 80, true, "🥘", ""],
+    ["Egg Manchurian", 100, false, "🥘", ""],
+    ["Chicken Manchurian", 120, false, "🍗", "", true],
   ],
-  Snacks: [
-    ["Samosa (2 pcs)", 25, true, "🥟", "Crispy, with green and tamarind chutney", true],
-    ["Veg Puff", 25, true, "🥐", "Flaky pastry with spiced veggies"],
-    ["Egg Puff", 30, false, "🥐", "Flaky pastry with masala egg"],
-    ["French Fries", 60, true, "🍟", "Salted, crisp and golden"],
-    ["Peri Peri Fries", 70, true, "🍟", "Tossed in spicy peri peri"],
-    ["Paneer Pakoda", 60, true, "🧀", "Gram flour fritters with mint chutney"],
+  Noodles: [
+    ["Veg Noodles", 80, true, "🥢", "", true],
+    ["Paneer Noodles", 120, true, "🥢", ""],
+    ["Egg Noodles", 100, false, "🥢", ""],
+    ["Chicken Noodles", 130, false, "🥢", ""],
   ],
-  "Maggi & Noodles": [
-    ["Plain Maggi", 35, true, "🍜", "The hostel classic"],
-    ["Masala Veg Maggi", 45, true, "🍜", "Loaded with onion, tomato and peas"],
-    ["Cheese Maggi", 55, true, "🧀", "Extra cheesy, extra comforting", true],
-    ["Egg Maggi", 55, false, "🍳", "With scrambled egg"],
-    ["Veg Hakka Noodles", 80, true, "🥢", "Wok-tossed with crunchy veggies"],
-    ["Chicken Hakka Noodles", 100, false, "🥢", "Wok-tossed with shredded chicken"],
+  "Egg Items": [
+    ["Egg Omelette", 40, false, "🍳", ""],
+    ["Bread Egg Omelette", 50, false, "🍞", ""],
   ],
-  "Momos, Rolls & Sandwiches": [
-    ["Veg Momos (6 pcs)", 60, true, "🥟", "Steamed, with spicy red chutney", true],
-    ["Chicken Momos (6 pcs)", 80, false, "🥟", "Steamed, with spicy red chutney"],
-    ["Veg Grilled Sandwich", 50, true, "🥪", "Toasted with veggies and mint mayo"],
-    ["Cheese Corn Sandwich", 60, true, "🥪", "Sweet corn, cheese and herbs"],
-    ["Paneer Tikka Roll", 80, true, "🌯", "Smoky paneer tikka in a rumali wrap", true],
-    ["Egg Roll", 50, false, "🌯", "Kolkata style, double egg"],
-    ["Chicken Roll", 90, false, "🌯", "Tandoori chicken with onions and sauce", true],
-  ],
-  Meals: [
-    ["Veg Fried Rice", 80, true, "🍚", "Indo-Chinese style"],
-    ["Egg Fried Rice", 90, false, "🍚", "With scrambled egg and spring onion"],
-    ["Chole Bhature", 70, true, "🫓", "Two bhature with spicy chole"],
-    ["Pav Bhaji", 70, true, "🍛", "Buttery bhaji with two pav"],
-  ],
-  "Desserts & Ice Cream": [
-    ["Vanilla Ice Cream Cup", 30, true, "🍨", "Classic vanilla"],
-    ["Chocolate Ice Cream Cup", 35, true, "🍫", "Double chocolate"],
-    ["Butterscotch Ice Cream Cup", 35, true, "🍦", "Crunchy butterscotch", false, false],
-    ["Chocolate Brownie", 60, true, "🍰", "Warm, fudgy brownie"],
-    ["Gulab Jamun (2 pcs)", 30, true, "🍡", "Soft and syrupy"],
+  "Wraps & Rolls": [
+    ["Veg Roll", 70, true, "🌯", ""],
+    ["Paneer Roll", 90, true, "🌯", "", true],
+    ["Egg Roll", 90, false, "🌯", ""],
+    ["Chicken Roll", 110, false, "🌯", ""],
+    ["Chicken Egg Roll", 130, false, "🌯", "", true],
   ],
 };
 
@@ -265,7 +246,7 @@ async function main() {
   await prisma.setting.createMany({
     data: [
       { key: "canteen_open", value: "true" },
-      { key: "canteen_hours", value: "8:00 AM – 11:30 PM" },
+      { key: "canteen_hours", value: "9:00 PM – 4:00 AM" },
     ],
   });
 
