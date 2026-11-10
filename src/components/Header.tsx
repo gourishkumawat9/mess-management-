@@ -46,7 +46,7 @@ export function Header({ user }: { user: HeaderUser | null }) {
       aria-label={label}
       title={label}
       className={clsx(
-        "group relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition duration-300",
+        "group relative inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-semibold transition duration-300 sm:px-3.5",
         active ? "bg-brand-600 text-white shadow-sm shadow-brand-900/20" : "text-ink/75 hover:bg-brand-50 hover:text-brand-700",
       )}
     >
@@ -66,12 +66,12 @@ export function Header({ user }: { user: HeaderUser | null }) {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link href="/" className="group flex min-w-0 items-center gap-2.5">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm shadow-brand-900/30 transition duration-500 ease-out group-hover:-rotate-6 group-hover:scale-105">
+          <span className="flex h-9 w-9 shrink-0 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm shadow-brand-900/30 transition duration-500 ease-out group-hover:-rotate-6 group-hover:scale-105">
             <UtensilsCrossed className="h-5 w-5" />
           </span>
           <span className="min-w-0 leading-tight">
-            <span className="block truncate font-display text-[17px] font-extrabold tracking-tight text-ink">IIMS Canteen</span>
-            <span className="block truncate text-[11px] font-medium text-brand-900/60">Mess &amp; Canteen · IIM Sambalpur</span>
+            <span className="block truncate font-display text-[15px] font-extrabold tracking-tight text-ink sm:text-[17px]">IIMS Canteen</span>
+            <span className="hidden truncate text-[11px] font-medium text-brand-900/60 sm:block">Mess &amp; Canteen · IIM Sambalpur</span>
           </span>
         </Link>
 
@@ -83,7 +83,7 @@ export function Header({ user }: { user: HeaderUser | null }) {
             <Link
               href="/checkout"
               className={clsx(
-                "relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition duration-300",
+                "relative inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-semibold transition duration-300 sm:px-3.5",
                 pathname === "/checkout" ? "bg-brand-600 text-white" : "text-ink/75 hover:bg-brand-50 hover:text-brand-700",
               )}
               aria-label={`Cart, ${count} items`}

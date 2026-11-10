@@ -109,6 +109,7 @@ export function MenuBrowser({
   }, [filtered]);
 
   const dishCount = sections.reduce((n, s) => n + s.items.length, 0);
+  const cheapest = Math.min(...sections.flatMap((s) => s.items.map((i) => i.price)));
 
   const toggles = (
     <>
@@ -143,8 +144,8 @@ export function MenuBrowser({
             </span>
           </h1>
           <p {...reveal("up", 300)} className="mt-6 max-w-lg text-base leading-relaxed text-zinc-600 sm:text-lg">
-            Order snacks, Maggi, shakes and more, then pick it up hot from the counter or get it sent to your hostel room. No
-            standing in line.
+            Late-night Maggi, noodles, Manchurian and rolls, cooked fresh. Pick it up hot from the counter or get it sent to
+            your hostel room. No standing in line.
           </p>
           <div {...reveal("up", 400)} className="mt-7 flex flex-wrap gap-3">
             <a href="#menu" className="btn-primary px-7 py-3.5 text-base">
@@ -207,8 +208,8 @@ export function MenuBrowser({
             className="absolute -bottom-4 left-2 h-28 w-28 sm:left-6 sm:h-32 sm:w-32"
             center={
               <span className="block text-center font-display leading-none">
-                <span className="block text-[10px] font-bold uppercase tracking-wider">Chai</span>
-                <span className="block text-2xl font-extrabold">₹15</span>
+                <span className="block text-[10px] font-bold uppercase tracking-wider">From</span>
+                <span className="block text-2xl font-extrabold">₹{cheapest}</span>
               </span>
             }
           />
@@ -280,7 +281,7 @@ export function MenuBrowser({
               [String(dishCount), "dishes on the menu"],
               [String(sections.length), "categories"],
               ["10–15", "minutes to ready"],
-              ["₹15", "for a kadak chai"],
+              [`₹${cheapest}`, "is all it takes"],
             ].map(([n, label], i) => (
               <div key={label} {...reveal("up", i * 90)} className="rounded-3xl bg-white/10 p-4 ring-1 ring-white/15 backdrop-blur">
                 <p className="font-display text-3xl font-extrabold text-gold-300">{n}</p>

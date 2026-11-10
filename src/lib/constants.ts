@@ -88,7 +88,7 @@ export const SETTINGS = {
   canteenHours: "canteen_hours",
 } as const;
 
-export const DEFAULT_CANTEEN_HOURS = "8:00 AM – 11:30 PM";
+export const DEFAULT_CANTEEN_HOURS = "9:00 PM – 4:00 AM";
 
 // Ordering guard rails.
 export const MAX_ITEM_QUANTITY = 20;

@@ -100,7 +100,7 @@ export default async function StaffDashboard() {
         </div>
       </div>
 
-      <div className={`mt-6 grid grid-cols-2 gap-3 ${tiles.length > 2 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+      <div className={`mt-6 grid grid-cols-2 gap-3 ${tiles.length > 3 ? "lg:grid-cols-4" : tiles.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>
         {tiles.map(({ label, value, hint, Icon, tone, href }, i) => (
           <Link key={label} href={href} {...reveal("up", i * 90)} className="card card-hover group p-5">
             <span className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl transition duration-500 group-hover:-rotate-6 group-hover:scale-110 ${tone}`}>
@@ -149,7 +149,7 @@ export default async function StaffDashboard() {
         </section>
         )}
 
-        <div className="space-y-6">
+        <div className={mess ? "space-y-6" : "space-y-6 xl:col-span-3"}>
           {canteen && (
           <section {...reveal("up", 100)} className="card p-5">
             <div className="flex items-center justify-between">
@@ -161,7 +161,7 @@ export default async function StaffDashboard() {
             {data.orders.topItems.length === 0 ? (
               <p className="mt-3 text-sm text-zinc-500">No canteen orders yet today.</p>
             ) : (
-              <ol className="mt-3 space-y-2">
+              <ol className={mess ? "mt-3 space-y-2" : "mt-3 grid gap-x-10 gap-y-2 sm:grid-cols-2"}>
                 {data.orders.topItems.map((t, i) => (
                   <li key={t.name} className="flex items-center gap-3 text-sm">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 font-display text-xs font-bold text-brand-700">
