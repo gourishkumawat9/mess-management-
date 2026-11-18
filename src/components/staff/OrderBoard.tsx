@@ -56,7 +56,7 @@ function beep() {
   }
 }
 
-export function OrderBoard({ initial, open }: { initial: BoardData; open: boolean }) {
+export function OrderBoard({ initial, settings }: { initial: BoardData; settings: { switchOn: boolean; inHours: boolean; hours: string } }) {
   const [data, setData] = useState(initial);
   const [now, setNow] = useState(() => new Date());
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -126,7 +126,7 @@ export function OrderBoard({ initial, open }: { initial: BoardData; open: boolea
             {sound ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
             {sound ? "Sound on" : "Sound off"}
           </button>
-          <CanteenToggle open={open} />
+          <CanteenToggle open={settings.switchOn} hours={settings.hours} inHours={settings.inHours} />
         </div>
       </div>
 

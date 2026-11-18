@@ -97,7 +97,7 @@ export default async function StaffDashboard() {
             <h1 className="display text-6xl sm:text-7xl">{user.name.split(" ")[0]}</h1>
           </div>
           {canteen && (
-            <CanteenToggle open={settings.open} />
+            <CanteenToggle open={settings.switchOn} hours={settings.hours} inHours={settings.inHours} />
           )}
         </div>
       </div>

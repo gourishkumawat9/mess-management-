@@ -9,5 +9,5 @@ export const metadata: Metadata = { title: "Live orders" };
 export default async function StaffOrdersPage() {
   await requirePageUser(CANTEEN_ROLES, "/staff/orders");
   const [orders, settings] = await Promise.all([listStaffOrders(), getCanteenSettings()]);
-  return <OrderBoard initial={JSON.parse(JSON.stringify(orders))} open={settings.open} />;
+  return <OrderBoard initial={JSON.parse(JSON.stringify(orders))} settings={settings} />;
 }
