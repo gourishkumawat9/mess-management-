@@ -213,8 +213,9 @@ export function MenuBrowser({
       {/* Crossing ticker bands */}
       <div className="relative my-6 py-10">
         <Marquee
-          className="absolute inset-x-[-10%] top-1/2 -translate-y-1/2 -rotate-3 border-y-2 border-ink bg-ink py-3 font-display text-2xl uppercase text-cream-50"
+          className="-mx-[10%] -translate-y-1/2 -rotate-3 border-y-2 border-ink bg-ink py-3 font-display text-2xl uppercase text-cream-50"
           reverse
+          repeat={3}
           separatorClassName="text-gold-400"
           items={["Order ahead", "Skip the queue", "Token & live tracking", "Pickup or room delivery", "Cash or UPI"]}
         />

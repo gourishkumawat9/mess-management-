@@ -15,6 +15,7 @@ export function Footer() {
       <Marquee
         className="border-b-2 border-ink bg-gold-400 py-3 font-display text-2xl uppercase text-ink"
         separatorClassName="text-brand-600"
+        repeat={3}
         items={["Maggi mania", "Manchurian", "Noodles", "Egg items", "Wraps & rolls", "Good food, good mood"]}
       />
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr]">

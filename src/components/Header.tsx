@@ -62,6 +62,7 @@ export function Header({ user }: { user: HeaderUser | null }) {
         <Marquee
           className="border-b-2 border-ink bg-ink py-2 text-[11px] font-extrabold uppercase tracking-[0.2em] text-cream-50 print:hidden"
           separatorClassName="text-gold-400"
+          repeat={2}
           items={[
             "Late night cravings, sorted",
             "Order ahead, skip the queue",
