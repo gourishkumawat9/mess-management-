@@ -3,11 +3,11 @@ import clsx from "clsx";
 // Placeholder "photo" until real dish photos are uploaded: an emoji on a warm
 // gradient. If a menu item has an imageUrl, that is shown instead.
 const GRADIENTS = [
-  "from-amber-100 via-orange-100 to-rose-100",
-  "from-rose-100 via-pink-100 to-orange-50",
-  "from-lime-100 via-emerald-50 to-amber-50",
-  "from-sky-100 via-indigo-50 to-rose-50",
-  "from-yellow-100 via-amber-50 to-orange-100",
+  "from-gold-100 via-cream-200 to-brand-100",
+  "from-brand-100 via-brand-50 to-gold-100",
+  "from-cream-200 via-gold-100 to-cream-100",
+  "from-brand-50 via-cream-100 to-brand-100",
+  "from-gold-100 via-brand-50 to-cream-200",
 ];
 
 function pick(seed: string) {

@@ -80,10 +80,10 @@ export function StockUpdateDialog({
   return (
     <Modal open title={`Update ${item.name}`} onClose={onClose}>
       <p className="-mt-2 mb-4 text-sm text-zinc-500">
-        In stock now: <b className="text-zinc-900">{formatQty(item.quantity, item.unit)}</b>
+        In stock now: <b className="text-ink">{formatQty(item.quantity, item.unit)}</b>
       </p>
       <form onSubmit={submit} className="space-y-4">
-        <div className="grid grid-cols-4 gap-1 rounded-xl bg-zinc-100 p-1">
+        <div className="grid grid-cols-4 gap-1 rounded-2xl bg-zinc-100 p-1">
           {MODES.map((m) => (
             <button
               key={m.type}
@@ -91,7 +91,7 @@ export function StockUpdateDialog({
               onClick={() => setType(m.type)}
               className={clsx(
                 "rounded-lg px-2 py-2 text-xs font-semibold transition sm:text-sm",
-                type === m.type ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-800",
+                type === m.type ? "bg-white text-ink shadow-sm" : "text-zinc-500 hover:text-zinc-800",
               )}
             >
               {m.label}
@@ -131,11 +131,11 @@ export function StockUpdateDialog({
         </div>
 
         {after !== null && (
-          <p className={clsx("rounded-xl p-3 text-sm", after < 0 ? "bg-red-50 text-red-700" : "bg-zinc-50 text-zinc-700")}>
+          <p className={clsx("rounded-2xl p-3 text-sm", after < 0 ? "bg-red-50 text-red-700" : "bg-zinc-50 text-zinc-700")}>
             {after < 0 ? "That's more than what's in stock." : <>Stock after this update: <b>{formatQty(after, item.unit)}</b></>}
           </p>
         )}
-        {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+        {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <button type="submit" disabled={!valid || saving || (after !== null && after < 0)} className="btn-primary w-full py-3">
           {saving ? "Saving…" : "Save update"}
         </button>

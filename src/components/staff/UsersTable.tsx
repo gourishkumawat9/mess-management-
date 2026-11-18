@@ -65,7 +65,7 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
           ))}
         </select>
       </div>
-      {error && <p className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-3 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       <div className="card mt-4 overflow-x-auto">
         <table className="w-full text-sm">
@@ -83,7 +83,7 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
               return (
                 <tr key={u.id} className={clsx(!u.active && "bg-zinc-50 text-zinc-400")}>
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-zinc-900">
+                    <p className="font-semibold text-ink">
                       {u.name} {self && <span className="text-xs font-normal text-zinc-400">(you)</span>}
                     </p>
                     <p className="text-xs text-zinc-500">

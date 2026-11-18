@@ -17,10 +17,10 @@ export default async function MyOrdersPage() {
   const past = orders.filter((o) => !ACTIVE_STATUSES.includes(o.status as OrderStatus));
 
   const OrderCard = ({ order }: { order: (typeof orders)[number] }) => (
-    <Link href={`/orders/${order.id}`} className="card flex items-center gap-4 p-4 transition hover:shadow-lg">
-      <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
+    <Link href={`/orders/${order.id}`} className="card card-hover flex items-center gap-4 p-4">
+      <div className="flex h-16 w-16 shrink-0 -rotate-3 flex-col items-center justify-center rounded-2xl border-2 border-ink bg-gold-400 text-ink">
         <span className="text-[10px] font-semibold uppercase">Token</span>
-        <span className="text-lg font-extrabold leading-none">{order.token}</span>
+        <span className="font-display text-2xl leading-none">{order.token}</span>
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -32,7 +32,7 @@ export default async function MyOrdersPage() {
         </p>
       </div>
       <div className="text-right">
-        <p className="font-bold text-zinc-900">₹{order.total}</p>
+        <p className="font-bold text-ink">₹{order.total}</p>
         <ChevronRight className="ml-auto mt-1 h-4 w-4 text-zinc-400" />
       </div>
     </Link>
@@ -44,7 +44,7 @@ export default async function MyOrdersPage() {
       {orders.length === 0 && (
         <div className="card mt-6 p-10 text-center">
           <p className="text-5xl">🧾</p>
-          <p className="mt-3 font-semibold text-zinc-900">No orders yet</p>
+          <p className="mt-3 font-semibold text-ink">No orders yet</p>
           <p className="text-sm text-zinc-500">Your canteen orders will show up here.</p>
           <Link href="/" className="btn-primary mt-5">
             Order something

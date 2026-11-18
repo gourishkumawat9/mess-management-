@@ -1,24 +1,75 @@
 import type { Config } from "tailwindcss";
 
+// Palette: IIM Sambalpur maroon-red in place of the reference site's blue and
+// dark blue. brand-600 is the main red, brand-900/950 replace the dark blue for
+// deep sections, gold is the small accent, cream is the warm page background.
 export default {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
         brand: {
-          50: "#fff1f2",
-          100: "#ffe1e3",
-          200: "#ffc8cc",
-          500: "#ef4f5f",
-          600: "#e23744",
-          700: "#c41f2d",
-          800: "#a01b27",
+          50: "#fdf3f4",
+          100: "#fbe4e7",
+          200: "#f5c4cb",
+          300: "#ec95a2",
+          400: "#de5b71",
+          500: "#c8304a",
+          600: "#a6192e",
+          700: "#8a1426",
+          800: "#6f1020",
+          900: "#530c18",
+          950: "#33060e",
         },
+        gold: {
+          100: "#fdf1d6",
+          300: "#f6d27a",
+          400: "#f1bd45",
+          500: "#e0a21f",
+        },
+        cream: {
+          50: "#fffcf7",
+          100: "#fbf5ec",
+          200: "#f4e9d8",
+        },
+        ink: "#22090e",
         veg: "#3ab757",
         nonveg: "#e43b4f",
       },
+      fontFamily: {
+        sans: ['"Inter Variable"', "ui-sans-serif", "system-ui", "-apple-system", '"Segoe UI"', "Roboto", "sans-serif"],
+        display: ["Anton", "Impact", '"Arial Narrow"', "sans-serif"],
+        script: ['"Caveat Brush"', "cursive"],
+      },
       boxShadow: {
-        card: "0 1px 2px rgba(28,28,28,0.06), 0 4px 16px rgba(28,28,28,0.06)",
+        card: "0 1px 2px rgba(51,6,14,0.05), 0 8px 24px -8px rgba(51,6,14,0.12)",
+        lift: "0 2px 4px rgba(51,6,14,0.06), 0 24px 48px -16px rgba(51,6,14,0.28)",
+        // Hard offset shadows: the chunky, printed-sticker look.
+        hard: "4px 4px 0 0 #22090e",
+        "hard-sm": "3px 3px 0 0 #22090e",
+        "hard-lg": "7px 7px 0 0 #22090e",
+        "hard-xl": "10px 10px 0 0 #22090e",
+      },
+      keyframes: {
+        marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },
+        "marquee-rev": { from: { transform: "translateX(-50%)" }, to: { transform: "translateX(0)" } },
+        wiggle: { "0%,100%": { transform: "rotate(var(--r,0deg))" }, "50%": { transform: "rotate(calc(var(--r,0deg) + 4deg))" } },
+        "spin-slow": { to: { transform: "rotate(360deg)" } },
+        float: { "0%,100%": { transform: "translateY(0) rotate(var(--r,0deg))" }, "50%": { transform: "translateY(-10px) rotate(var(--r,0deg))" } },
+        "page-in": { from: { opacity: "0", transform: "translateY(12px)" }, to: { opacity: "1", transform: "none" } },
+        pop: { "0%": { transform: "scale(1)" }, "40%": { transform: "scale(1.25)" }, "100%": { transform: "scale(1)" } },
+      },
+      animation: {
+        marquee: "marquee 40s linear infinite",
+        "marquee-rev": "marquee-rev 45s linear infinite",
+        wiggle: "wiggle 3.5s ease-in-out infinite",
+        "spin-slow": "spin-slow 18s linear infinite",
+        float: "float 6s ease-in-out infinite",
+        "page-in": "page-in .6s cubic-bezier(.22,1,.36,1) both",
+        pop: "pop .35s ease-out",
+      },
+      transitionTimingFunction: {
+        out: "cubic-bezier(.22,1,.36,1)",
       },
     },
   },

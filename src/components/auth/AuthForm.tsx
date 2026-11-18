@@ -105,7 +105,7 @@ export function AuthForm({ mode, domains }: { mode: "login" | "register"; domain
           placeholder={mode === "register" ? "At least 8 characters" : "Your password"}
         />
       </div>
-      {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       <button type="submit" disabled={busy} className="btn-primary w-full py-3">
         {busy && <LoaderCircle className="h-4 w-4 animate-spin" />}
         {mode === "login" ? "Log in" : "Create account"}

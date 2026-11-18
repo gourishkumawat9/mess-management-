@@ -12,6 +12,7 @@ import {
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/constants";
+import { isWithinHours } from "@/lib/hours";
 import {
   ACTIVE_STATUSES,
   canTransition,
@@ -24,15 +25,19 @@ import {
 
 // ---------------------------------------------------------------- settings
 
+/**
+ * `switchOn` is the staff open/closed switch. `open` (taking orders now) also
+ * needs the current India time to be inside the canteen timings.
+ */
 export async function getCanteenSettings() {
   const rows = await prisma.setting.findMany({
     where: { key: { in: [SETTINGS.canteenOpen, SETTINGS.canteenHours] } },
   });
   const value = (key: string) => rows.find((r) => r.key === key)?.value;
-  return {
-    open: value(SETTINGS.canteenOpen) !== "false",
-    hours: value(SETTINGS.canteenHours) ?? DEFAULT_CANTEEN_HOURS,
-  };
+  const switchOn = value(SETTINGS.canteenOpen) !== "false";
+  const hours = value(SETTINGS.canteenHours) ?? DEFAULT_CANTEEN_HOURS;
+  const inHours = isWithinHours(hours, new Date());
+  return { open: switchOn && inHours, switchOn, inHours, hours };
 }
 
 export async function updateCanteenSettings(input: { canteenOpen?: boolean; canteenHours?: string }) {
