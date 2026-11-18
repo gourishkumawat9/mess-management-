@@ -99,3 +99,9 @@ export const PHOTOS = {
     page: "https://unsplash.com/photos/diners-in-sunlit-industrial-canteen-E5X8AgPfkHk",
   },
 } satisfies Record<string, Photo>;
+
+/** The institute's own photo, served from /public. */
+export const MESS_DINING = {
+  src: "/images/mess-dining.jpg",
+  alt: "The IIM Sambalpur Mess & Dining building lit up at night",
+};

@@ -16,6 +16,7 @@ The decorative photographs in the app are from [Unsplash](https://unsplash.com) 
 | Mess dashboard banner | [Fresh vegetables at a market](https://unsplash.com/photos/a-vibrant-display-of-fresh-vegetables-at-a-market-6qWr1uDQz-o) | Rudrendu Sharma |
 | Canteen dashboard banner | [Busy restaurant kitchen](https://unsplash.com/photos/workers-preparing-food-in-a-busy-restaurant-kitchen-ndloYdUILfE) | Cheng Shi Song |
 | Owner dashboard banner | [Steel cooking pots on a stove](https://unsplash.com/photos/stainless-steel-cooking-pots-on-stove-0EkWTSFXwCc) | Francisco Suarez |
-| Home "eat together" band | [Diners in a sunlit canteen](https://unsplash.com/photos/diners-in-sunlit-industrial-canteen-E5X8AgPfkHk) | Barney Goodman |
 
-These are stand-ins. Real photos of the IIM Sambalpur mess building, the canteen counter and the canteen's own dishes should replace them; swap the entries in `src/lib/photos.ts`, or set each dish's photo URL from the staff **Canteen menu** screen.
+The home page "our own mess kitchen" band uses the institute's own photo of the Mess & Dining building (`public/images/mess-dining.jpg`), supplied by the IIM Sambalpur team.
+
+The Unsplash photos are stand-ins. Real photos of the IIM Sambalpur mess building, the canteen counter and the canteen's own dishes should replace them; swap the entries in `src/lib/photos.ts`, or set each dish's photo URL from the staff **Canteen menu** screen.

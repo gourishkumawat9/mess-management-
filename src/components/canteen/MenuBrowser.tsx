@@ -30,7 +30,7 @@ import { reveal } from "@/components/motion/revealProps";
 import { ScrollWords } from "@/components/motion/ScrollWords";
 import { SplitWords } from "@/components/motion/SplitWords";
 import { Sticker } from "@/components/motion/Sticker";
-import { PHOTOS, photoUrl, type Photo } from "@/lib/photos";
+import { MESS_DINING, PHOTOS, photoUrl, type Photo } from "@/lib/photos";
 import { DishImage } from "./DishImage";
 
 // Photo "cut-outs" that float around the hero headline at different depths.
@@ -354,12 +354,15 @@ export function MenuBrowser({
 
         {/* Photo band */}
         <section {...reveal("zoom")} className="relative mt-28 overflow-hidden rounded-[2rem] border-2 border-ink bg-ink text-white shadow-hard-lg">
-          <Parallax speed={0.1} className="absolute inset-0 -top-[15%] h-[130%]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photoUrl(PHOTOS.diners, 1600, 900)} alt="" className="h-full w-full object-cover opacity-50" loading="lazy" />
-          </Parallax>
-          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/70 to-transparent" />
-          <div className="relative grid gap-8 p-8 sm:p-12 lg:grid-cols-[1.3fr_1fr] lg:p-16">
+          <div className="relative aspect-[16/10] overflow-hidden border-b-2 border-ink sm:aspect-[16/8] lg:aspect-[16/7]">
+            <Parallax speed={0.08} className="absolute inset-0 -top-[10%] h-[120%]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={MESS_DINING.src} alt={MESS_DINING.alt} className="h-full w-full object-cover" loading="lazy" />
+            </Parallax>
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink to-transparent" />
+            <span className="tag absolute left-4 top-4 -rotate-3 sm:left-6 sm:top-6">IIM Sambalpur · Mess &amp; Dining</span>
+          </div>
+          <div className="relative grid gap-8 p-8 sm:p-12 lg:grid-cols-[1.3fr_1fr] lg:p-16 lg:pt-12">
             <div>
               <p className="scribble text-3xl text-gold-300">our superpower</p>
               <h2 className="display mt-2 text-5xl sm:text-7xl">Cooked in our own mess kitchen.</h2>
