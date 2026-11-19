@@ -4,6 +4,8 @@ import type { OrderStatus } from "./constants";
 
 /** Which statuses the counter staff can move an order to from each status. */
 export const ORDER_FLOW: Record<OrderStatus, OrderStatus[]> = {
+  // Only a confirmed payment (server side) moves this on to PLACED.
+  AWAITING_PAYMENT: [],
   PLACED: ["PREPARING", "CANCELLED"],
   PREPARING: ["READY", "CANCELLED"],
   READY: ["COMPLETED", "CANCELLED"],
@@ -14,6 +16,7 @@ export const ORDER_FLOW: Record<OrderStatus, OrderStatus[]> = {
 export const ACTIVE_STATUSES: OrderStatus[] = ["PLACED", "PREPARING", "READY"];
 
 export const ORDER_STATUS_META: Record<OrderStatus, { label: string; hint: string; next?: string }> = {
+  AWAITING_PAYMENT: { label: "Waiting for payment", hint: "Pay to send your order to the kitchen" },
   PLACED: { label: "Order placed", hint: "Waiting for the canteen to start on it", next: "Start preparing" },
   PREPARING: { label: "Being prepared", hint: "Your food is on the stove", next: "Mark ready" },
   READY: { label: "Ready for pickup", hint: "Collect it at the canteen counter", next: "Picked up" },
@@ -34,7 +37,7 @@ export function nextStatus(from: OrderStatus): OrderStatus | null {
 
 /** Customers may cancel only before the kitchen has started cooking. */
 export function customerCanCancel(status: OrderStatus) {
-  return status === "PLACED";
+  return status === "PLACED" || status === "AWAITING_PAYMENT";
 }
 
 export function statusTimestampField(status: OrderStatus) {
@@ -72,5 +75,10 @@ export interface PricedLine {
 }
 
 export function orderTotal(lines: PricedLine[]) {
-  return lines.reduce((sum, l) => sum + l.price * l.quantity, 0);
+  return lines.reduce((sum, l) => {
+    if (!Number.isInteger(l.price) || l.price < 0 || !Number.isInteger(l.quantity) || l.quantity < 1) {
+      throw new Error("Invalid order line");
+    }
+    return sum + l.price * l.quantity;
+  }, 0);
 }

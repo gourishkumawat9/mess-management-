@@ -1,9 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { ZodError, type ZodType } from "zod";
-import { cookies } from "next/headers";
 import { getCurrentUser, type CurrentUser } from "./auth";
-import { SESSION_COOKIE, verifySession } from "./session";
 import type { Role } from "./constants";
 
 export class HttpError extends Error {
@@ -27,12 +25,6 @@ export function route<C = unknown>(fn: Handler<C>): Handler<C> {
       if (req.method !== "GET" && req.method !== "HEAD") {
         const type = req.headers.get("content-type") ?? "";
         if (!type.includes("application/json")) throw new HttpError(415, "Requests must be JSON");
-        // Presentation demo sessions can look at everything but change nothing
-        // (signing out or in with a real account still works).
-        if (!new URL(req.url).pathname.startsWith("/api/auth/")) {
-          const claims = await verifySession((await cookies()).get(SESSION_COOKIE)?.value);
-          if (claims?.demo) throw new HttpError(403, "Demo mode: changes are switched off. Log in with a real account to make changes.");
-        }
       }
       return await fn(req, ctx);
     } catch (err) {
@@ -58,7 +50,7 @@ export async function requireUser(roles?: Role[]): Promise<CurrentUser> {
   return user;
 }
 
-export { CANTEEN_ROLES, MESS_ROLES, STAFF_ROLES } from "./constants";
+export { CANTEEN_ROLES, STAFF_ROLES } from "./constants";
 
 export async function readJson<T>(req: Request, schema: ZodType<T>): Promise<T> {
   let body: unknown;

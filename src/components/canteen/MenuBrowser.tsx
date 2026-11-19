@@ -367,8 +367,8 @@ export function MenuBrowser({
               <p className="scribble text-3xl text-gold-300">our superpower</p>
               <h2 className="display mt-2 text-5xl sm:text-7xl">Cooked in our own mess kitchen.</h2>
               <p className="mt-5 max-w-md font-medium text-white/80">
-                The team that runs the mess runs the canteen. Stock is tracked every day, so what you see on the menu is what the
-                kitchen has.
+                The team that runs the mess runs the canteen. Sold-out dishes are switched off on the menu, so what you see is what
+                the kitchen has.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 self-end">

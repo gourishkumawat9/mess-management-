@@ -1,7 +1,6 @@
 /**
- * Starting data: an admin account, a placeholder canteen menu and the mess
- * inventory list. Unless SEED_DEMO_DATA=false it also adds demo accounts, two
- * weeks of stock history and some canteen orders.
+ * Starting data: an admin account and the canteen menu. Unless
+ * SEED_DEMO_DATA=false it also adds demo accounts and some canteen orders.
  *
  *   npm run db:seed    seeds an empty database (does nothing if data exists)
  *   npm run db:reset   wipes the database and seeds it again
@@ -32,7 +31,6 @@ function rand() {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 const between = (min: number, max: number) => min + rand() * (max - min);
-const round = (n: number, dp = 2) => Math.round(n * 10 ** dp) / 10 ** dp;
 const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
 
 // ------------------------------------------------------------------ accounts
@@ -92,10 +90,7 @@ function accounts(): Account[] | null {
   const worker = (name: string, email: string, role: string, phone: string) => ({ name, email, role, password: staff.value, known: staff.known, phone });
   return [
     ...list,
-    // One login per team; they share the staff password.
-    worker("Ramesh Kumar", `staff@${DOMAIN}`, "STAFF", "98765 43210"),
     worker("Sunita Behera", `canteen@${DOMAIN}`, "CANTEEN", "98765 43211"),
-    worker("Bikash Sahu", `mess@${DOMAIN}`, "MESS", "98765 43212"),
     { ...member("Demo Student", `student@${DOMAIN}`, "H3", "214"), phone: "91234 56789" },
     // Extra members so the order board looks lived-in. They share the student password.
     member("Aarav Sharma", `aarav.s@${DOMAIN}`, "H1", "108"),
@@ -143,70 +138,6 @@ const MENU: Record<string, Dish[]> = {
     ["Chicken Egg Roll", 130, false, "🌯", "", true],
   ],
 };
-
-// ----------------------------------------------------------------- inventory
-// [name, category, unit, target stock now, reorder level, full stock, ₹/unit, uses per day, restock every N days, shelf life days?, supplier]
-type Stock = [string, string, string, number, number, number, number, number, number, number | null, string];
-const VEG = "Sambalpur Sabzi Mandi";
-const DAIRY = "Local dairy (placeholder)";
-const WHOLESALE = "Agro wholesale (placeholder)";
-const FROZEN = "Ice cream distributor (placeholder)";
-const INVENTORY: Stock[] = [
-  ["Potato", "VEGETABLES", "kg", 140, 60, 250, 25, 28, 4, null, VEG],
-  ["Onion", "VEGETABLES", "kg", 95, 50, 200, 32, 22, 4, null, VEG],
-  ["Tomato", "VEGETABLES", "kg", 18, 25, 80, 30, 14, 3, 6, VEG],
-  ["Green Chilli", "VEGETABLES", "kg", 5, 2, 8, 60, 1.2, 3, 5, VEG],
-  ["Ginger", "VEGETABLES", "kg", 6, 2, 10, 120, 0.8, 5, null, VEG],
-  ["Garlic", "VEGETABLES", "kg", 7, 2, 10, 140, 0.7, 5, null, VEG],
-  ["Cauliflower", "VEGETABLES", "kg", 22, 10, 40, 35, 8, 3, 4, VEG],
-  ["Cabbage", "VEGETABLES", "kg", 30, 10, 40, 22, 6, 4, 6, VEG],
-  ["Bhindi (Lady Finger)", "VEGETABLES", "kg", 13, 8, 30, 45, 6, 3, 3, VEG],
-  ["Palak (Spinach)", "VEGETABLES", "kg", 7, 5, 20, 30, 4, 2, 2, VEG],
-  ["Coriander Leaves", "VEGETABLES", "kg", 2.5, 1, 4, 80, 0.8, 2, 3, VEG],
-  ["Carrot", "VEGETABLES", "kg", 24, 8, 30, 40, 3.5, 5, 10, VEG],
-  ["Capsicum", "VEGETABLES", "kg", 12, 4, 15, 60, 2, 4, 6, VEG],
-  ["Banana", "FRUITS", "dozen", 30, 15, 60, 50, 12, 3, 4, VEG],
-  ["Lemon", "FRUITS", "kg", 4, 2, 6, 80, 0.6, 5, 10, VEG],
-  ["Milk", "DAIRY", "L", 150, 120, 350, 54, 160, 1, 2, DAIRY],
-  ["Curd", "DAIRY", "kg", 45, 30, 90, 70, 38, 2, 2, DAIRY],
-  ["Paneer", "DAIRY", "kg", 14, 10, 30, 340, 5, 3, 3, DAIRY],
-  ["Butter", "DAIRY", "kg", 6, 3, 10, 520, 0.6, 7, 30, DAIRY],
-  ["Eggs", "DAIRY", "dozen", 35, 20, 60, 72, 9, 4, 14, DAIRY],
-  ["Cheese Slices", "DAIRY", "packets", 9, 6, 20, 140, 1.5, 5, 30, DAIRY],
-  ["Vanilla Ice Cream Cups", "FROZEN", "pcs", 140, 60, 250, 20, 30, 5, 180, FROZEN],
-  ["Chocolate Ice Cream Cups", "FROZEN", "pcs", 85, 60, 200, 22, 24, 5, 180, FROZEN],
-  ["Butterscotch Ice Cream Cups", "FROZEN", "pcs", 0, 40, 150, 22, 16, 6, 180, FROZEN],
-  ["Kulfi", "FROZEN", "pcs", 40, 25, 100, 25, 8, 7, 180, FROZEN],
-  ["Ice Cream Family Tubs (4 L)", "FROZEN", "tubs", 5, 3, 10, 650, 0.8, 7, 180, FROZEN],
-  ["Frozen Green Peas", "FROZEN", "kg", 16, 8, 30, 120, 2, 7, 180, FROZEN],
-  ["Basmati Rice", "GRAINS", "kg", 220, 100, 400, 95, 18, 10, null, WHOLESALE],
-  ["Sona Masoori Rice", "GRAINS", "kg", 480, 200, 800, 52, 55, 7, null, WHOLESALE],
-  ["Wheat Atta", "GRAINS", "kg", 320, 150, 600, 38, 45, 7, null, WHOLESALE],
-  ["Toor Dal", "GRAINS", "kg", 70, 40, 150, 135, 9, 10, null, WHOLESALE],
-  ["Moong Dal", "GRAINS", "kg", 38, 20, 60, 120, 4, 10, null, WHOLESALE],
-  ["Kabuli Chana", "GRAINS", "kg", 22, 15, 40, 110, 3, 10, null, WHOLESALE],
-  ["Rajma", "GRAINS", "kg", 12, 15, 40, 140, 2.5, 12, null, WHOLESALE],
-  ["Poha", "GRAINS", "kg", 18, 10, 30, 55, 3, 10, null, WHOLESALE],
-  ["Suji (Rava)", "GRAINS", "kg", 14, 8, 25, 45, 2, 10, null, WHOLESALE],
-  ["Besan", "GRAINS", "kg", 15, 10, 30, 90, 2.5, 10, null, WHOLESALE],
-  ["Sugar", "GRAINS", "kg", 65, 40, 120, 44, 8, 10, null, WHOLESALE],
-  ["Maggi Noodles", "GRAINS", "packets", 160, 100, 400, 14, 45, 7, 240, WHOLESALE],
-  ["Salt", "SPICES", "kg", 38, 15, 50, 22, 2.5, 14, null, WHOLESALE],
-  ["Turmeric Powder", "SPICES", "kg", 4.5, 2, 6, 240, 0.3, 14, null, WHOLESALE],
-  ["Red Chilli Powder", "SPICES", "kg", 5, 2, 6, 320, 0.35, 14, null, WHOLESALE],
-  ["Garam Masala", "SPICES", "kg", 1.8, 1.5, 4, 600, 0.2, 14, null, WHOLESALE],
-  ["Jeera (Cumin)", "SPICES", "kg", 3, 1, 5, 450, 0.2, 14, null, WHOLESALE],
-  ["Mustard Seeds", "SPICES", "kg", 2.5, 1, 4, 140, 0.15, 14, null, WHOLESALE],
-  ["Refined Sunflower Oil", "OILS", "L", 110, 60, 200, 145, 14, 7, null, WHOLESALE],
-  ["Mustard Oil", "OILS", "L", 32, 20, 60, 175, 3, 10, null, WHOLESALE],
-  ["Desi Ghee", "OILS", "kg", 9, 5, 15, 620, 0.9, 10, null, DAIRY],
-  ["Tea Leaves", "BEVERAGES", "kg", 9, 4, 15, 420, 1.1, 7, null, WHOLESALE],
-  ["Coffee Powder", "BEVERAGES", "kg", 1.2, 1.5, 5, 900, 0.35, 10, null, WHOLESALE],
-  ["Bread Loaves", "BAKERY", "pcs", 30, 20, 60, 45, 18, 2, 3, "Local bakery (placeholder)"],
-  ["Pav Buns", "BAKERY", "packets", 14, 10, 30, 30, 6, 2, 3, "Local bakery (placeholder)"],
-  ["LPG Cylinders (Commercial)", "SUPPLIES", "cylinders", 6, 4, 12, 1850, 1.2, 5, null, "Gas agency (placeholder)"],
-  ["Dishwash Liquid", "SUPPLIES", "L", 14, 8, 25, 110, 1.6, 10, null, WHOLESALE],
-];
 
 async function main() {
   const existing = await prisma.user.count();
@@ -266,98 +197,8 @@ async function main() {
   }
 
   if (!DEMO) {
-    // The inventory list with nothing in stock yet: staff enter real counts.
-    await prisma.inventoryItem.createMany({
-      data: INVENTORY.map(([name, category, unit, , reorderLevel, parLevel, cost, , , shelfLife, supplier]) => ({
-        name,
-        category,
-        unit,
-        reorderLevel,
-        parLevel,
-        costPerUnit: cost,
-        supplier,
-        shelfLifeDays: shelfLife,
-      })),
-    });
     report(ACCOUNTS, dishes.length, 0);
     return;
-  }
-  const staffId = users[`staff@${DOMAIN}`].id;
-
-  // Inventory with 14 days of history
-  const HISTORY_DAYS = 14;
-  for (const [name, category, unit, target, reorderLevel, parLevel, cost, daily, every, shelfLife, supplier] of INVENTORY) {
-    // Things you count (cups, cylinders, packets) move in whole numbers.
-    const dp = ["kg", "g", "L", "ml"].includes(unit) ? 2 : 0;
-    const usages: number[] = [];
-    const restocks: number[] = [];
-    for (let d = HISTORY_DAYS; d >= 1; d--) {
-      usages.push(Math.max(dp ? 0.01 : 1, round(daily * between(0.8, 1.2), dp)));
-      restocks.push((HISTORY_DAYS - d) % every === 0 ? round(daily * every * between(0.95, 1.1), dp ? 1 : 0) : 0);
-    }
-    // Pick the opening stock so the history adds up to today's target. If the
-    // deliveries alone overshoot it, trim the latest delivery instead.
-    let net = restocks.reduce((s, r) => s + r, 0) - usages.reduce((s, u) => s + u, 0);
-    if (net > target) {
-      const last = restocks.findLastIndex((r) => r > 0);
-      const trimmed = Math.max(round(restocks[last] * 0.3, dp ? 1 : 0), round(restocks[last] - (net - target), dp ? 1 : 0));
-      net -= restocks[last] - trimmed;
-      restocks[last] = trimmed;
-    }
-    let opening = Math.max(0, round(target - net));
-    let lowest = 0;
-    let running = 0;
-    for (let i = 0; i < HISTORY_DAYS; i++) {
-      running += restocks[i] - usages[i];
-      lowest = Math.min(lowest, running);
-    }
-    if (opening + lowest < 0) opening = round(-lowest);
-
-    const createdAt = new Date(today.getTime() - (HISTORY_DAYS + 1) * DAY);
-    const item = await prisma.inventoryItem.create({
-      data: {
-        name,
-        category,
-        unit,
-        quantity: 0,
-        reorderLevel,
-        parLevel,
-        costPerUnit: cost,
-        supplier,
-        shelfLifeDays: shelfLife,
-        createdAt,
-      },
-    });
-
-    const movements: { type: string; change: number; balanceAfter: number; unitCost?: number; note: string; createdAt: Date }[] = [];
-    let balance = opening;
-    let lastRestockedAt: Date | null = null;
-    if (opening > 0) {
-      movements.push({ type: "ADJUSTMENT", change: opening, balanceAfter: opening, note: "Opening stock", createdAt: new Date(createdAt.getTime() + 10 * HOUR) });
-      lastRestockedAt = new Date(createdAt.getTime() + 10 * HOUR);
-    }
-    for (let i = 0; i < HISTORY_DAYS; i++) {
-      const dayStart = new Date(today.getTime() - (HISTORY_DAYS - i) * DAY);
-      if (restocks[i] > 0) {
-        balance = round(balance + restocks[i], 3);
-        const at = new Date(dayStart.getTime() + 7.5 * HOUR);
-        movements.push({ type: "RESTOCK", change: restocks[i], balanceAfter: balance, unitCost: cost, note: `Delivery from ${supplier}`, createdAt: at });
-        lastRestockedAt = at;
-      }
-      let used = Math.min(usages[i], balance);
-      if (target === 0 && i === HISTORY_DAYS - 1) used = balance; // finish it off: shows as out of stock
-      if (used > 0) {
-        balance = round(balance - used, 3);
-        movements.push({ type: "USAGE", change: -round(used, 3), balanceAfter: balance, note: "Daily stock count", createdAt: new Date(dayStart.getTime() + 21.5 * HOUR) });
-      }
-      if (i === 9 && shelfLife && shelfLife <= 3 && balance > daily) {
-        const spoiled = Math.max(dp ? 0.1 : 1, round(daily * 0.15, dp));
-        balance = round(balance - spoiled, 3);
-        movements.push({ type: "WASTAGE", change: -spoiled, balanceAfter: balance, note: "Spoiled", createdAt: new Date(dayStart.getTime() + 22 * HOUR) });
-      }
-    }
-    await prisma.stockMovement.createMany({ data: movements.map((m) => ({ ...m, itemId: item.id, userId: staffId })) });
-    await prisma.inventoryItem.update({ where: { id: item.id }, data: { quantity: balance, lastRestockedAt } });
   }
 
   // Canteen orders: three past days plus today
@@ -423,7 +264,7 @@ async function main() {
         userId: p.user.id,
         status: p.status,
         total,
-        paymentMethod: rand() < 0.7 ? "UPI" : "CASH",
+        paymentMethod: "COUNTER",
         isPaid: p.status === "COMPLETED",
         note: p.note ?? null,
         fulfilment: delivery ? "DELIVERY" : "PICKUP",
@@ -451,7 +292,7 @@ async function main() {
 
 function report(list: Account[], dishCount: number, orderCount: number) {
   console.log(DEMO ? "Seeded demo data:" : "Seeded starting data (no demo data):");
-  console.log(`  ${list.length} accounts, ${dishCount} menu items, ${INVENTORY.length} inventory items, ${orderCount} orders`);
+  console.log(`  ${list.length} accounts, ${dishCount} menu items, ${orderCount} orders`);
   console.log("\nLogins:");
   for (const a of list.slice(0, 3)) {
     // Never print passwords on a live deployment (build logs are shared).

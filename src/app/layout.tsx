@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: { default: "IIMS Canteen · IIM Sambalpur", template: "%s · IIMS Canteen" },
-  description: "Order from the IIM Sambalpur mess canteen and manage mess inventory.",
+  description: "Order from the IIM Sambalpur mess canteen.",
   applicationName: "IIMS Canteen",
 };
 

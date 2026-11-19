@@ -7,7 +7,7 @@ import { OrderStatusBadge } from "@/components/canteen/OrderStatusBadge";
 import { VegMark } from "@/components/VegMark";
 import { CanteenToggle } from "./CanteenToggle";
 import { api } from "@/lib/client";
-import type { OrderStatus } from "@/lib/constants";
+import { paymentLabel, type OrderStatus } from "@/lib/constants";
 import { formatTime, timeAgo } from "@/lib/format";
 import { ORDER_STATUS_META, nextStatus } from "@/lib/orders";
 
@@ -100,7 +100,8 @@ export function OrderBoard({ initial, settings }: { initial: BoardData; settings
   }
 
   function cancel(order: BoardOrder) {
-    const reason = window.prompt(`Cancel token #${order.token}? Reason (shown to ${order.user.name}):`, "Item ran out");
+    const refundNote = order.paymentMethod === "ONLINE" ? ` They paid online, so ₹${order.total} will be refunded automatically.` : "";
+    const reason = window.prompt(`Cancel token #${order.token}?${refundNote} Reason (shown to ${order.user.name}):`, "Item ran out");
     if (reason === null) return;
     update(order, { status: "CANCELLED", cancelReason: reason || "Cancelled by canteen" });
   }
@@ -185,8 +186,13 @@ export function OrderBoard({ initial, settings }: { initial: BoardData; settings
                       )}
                       <div className="mt-3 flex items-center justify-between border-t border-dashed border-zinc-200 pt-3 text-sm">
                         <span className="font-semibold text-ink">
-                          ₹{order.total} <span className="font-normal text-zinc-500">· {order.paymentMethod}</span>
+                          ₹{order.total} <span className="font-normal text-zinc-500">· {paymentLabel(order.paymentMethod)}</span>
                         </span>
+                        {order.paymentMethod === "ONLINE" ? (
+                          <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                            Paid online ✓
+                          </span>
+                        ) : (
                         <button
                           onClick={() => update(order, { isPaid: !order.isPaid })}
                           disabled={busyId === order.id}
@@ -197,6 +203,7 @@ export function OrderBoard({ initial, settings }: { initial: BoardData; settings
                         >
                           {order.isPaid ? "Paid ✓" : "Mark paid"}
                         </button>
+                        )}
                       </div>
                       <div className="mt-3 flex gap-2">
                         {next && (

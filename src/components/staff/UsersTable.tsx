@@ -49,8 +49,8 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
     <div>
       <h1 className="page-title">Users &amp; roles</h1>
       <p className="mt-1 text-sm text-zinc-500">
-        Everyone signs up as a member who can order from the canteen. Make mess workers <b>Mess staff</b> so they can manage
-        inventory and orders, and give <b>Admin</b> only to people who manage accounts.
+        Everyone signs up as a member who can order from the canteen. Make counter workers <b>Canteen staff</b> so they can
+        run live orders and the menu, and give <b>Admin</b> only to people who manage accounts.
       </p>
 
       <div className="mt-5 flex flex-col gap-2 sm:flex-row">

@@ -3,6 +3,7 @@ import type { OrderStatus } from "@/lib/constants";
 import { ORDER_STATUS_META } from "@/lib/orders";
 
 const STYLES: Record<OrderStatus, string> = {
+  AWAITING_PAYMENT: "bg-amber-50 text-amber-800 ring-amber-200",
   PLACED: "bg-brand-50 text-brand-700 ring-brand-200",
   PREPARING: "bg-gold-100 text-amber-800 ring-gold-300",
   READY: "bg-emerald-50 text-emerald-700 ring-emerald-200",
