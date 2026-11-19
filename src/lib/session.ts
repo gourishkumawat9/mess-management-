@@ -11,8 +11,6 @@ export interface SessionClaims {
   sub: string;
   role: Role;
   name: string;
-  /** Set on sessions made by the presentation demo sign-in; these are read-only. */
-  demo?: boolean;
 }
 
 const PLACEHOLDER_SECRET = "change-me-to-a-long-random-string";
@@ -26,7 +24,7 @@ function secretKey() {
 }
 
 export async function signSession(claims: SessionClaims) {
-  return new SignJWT({ role: claims.role, name: claims.name, ...(claims.demo ? { demo: true } : {}) })
+  return new SignJWT({ role: claims.role, name: claims.name })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(claims.sub)
     .setIssuedAt()
@@ -39,7 +37,10 @@ export async function verifySession(token: string | undefined): Promise<SessionC
   try {
     const { payload } = await jwtVerify(token, secretKey(), { algorithms: ["HS256"] });
     if (typeof payload.sub !== "string") return null;
-    return { sub: payload.sub, role: payload.role as Role, name: String(payload.name ?? ""), demo: payload.demo === true };
+    // Sessions handed out by the old presentation demo (no password) are never
+    // accepted, so a leftover demo cookie can't act as the account it showed.
+    if (payload.demo !== undefined) return null;
+    return { sub: payload.sub, role: payload.role as Role, name: String(payload.name ?? "") };
   } catch {
     return null;
   }

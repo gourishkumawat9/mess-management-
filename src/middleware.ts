@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/session";
-import { demoOpenAccess } from "@/lib/demo";
 
 // Fast redirect for signed-out visitors. Pages and API routes still check the
 // user and role against the database; this only saves a round trip.
@@ -8,8 +7,7 @@ export async function middleware(req: NextRequest) {
   const session = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
   if (!session) {
     const url = req.nextUrl.clone();
-    // Presentation demo mode: sign in as the owner instead of showing the login form.
-    url.pathname = demoOpenAccess() ? "/demo/owner" : "/login";
+    url.pathname = "/login";
     url.search = `?next=${encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)}`;
     return NextResponse.redirect(url);
   }

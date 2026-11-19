@@ -14,6 +14,6 @@ export const POST = route(async (req) => {
     throw new HttpError(429, "You're ordering too fast. Please wait a moment.");
   }
   const input = await readJson(req, placeOrderSchema);
-  const order = await placeOrder(user, input);
-  return json({ order }, { status: 201 });
+  const { order, checkout } = await placeOrder(user, input);
+  return json({ order, checkout }, { status: 201 });
 });

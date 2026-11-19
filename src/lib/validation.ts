@@ -1,10 +1,8 @@
 import { z } from "zod";
+import { parseHours } from "./hours";
 import {
-  INVENTORY_CATEGORY_IDS,
-  INVENTORY_UNITS,
   MAX_ITEM_QUANTITY,
   MAX_ORDER_LINES,
-  MOVEMENT_TYPES,
   FULFILMENTS,
   ORDER_STATUSES,
   PAYMENT_METHODS,
@@ -41,60 +39,6 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().min(1, "Enter your email").max(200),
   password: z.string().min(1, "Enter your password").max(100),
-});
-
-// ------------------------------------------------------------- inventory
-
-const qty = z.coerce.number().finite().min(0).max(1_000_000);
-
-export const inventoryItemSchema = z.object({
-  name: trimmed(80).min(2, "Name is too short"),
-  category: z.enum(INVENTORY_CATEGORY_IDS),
-  unit: z.enum(INVENTORY_UNITS),
-  reorderLevel: qty,
-  parLevel: qty,
-  costPerUnit: qty.optional().nullable(),
-  supplier: optionalText(80),
-  shelfLifeDays: z.coerce.number().int().min(1).max(3650).optional().nullable(),
-  notes: optionalText(500),
-});
-
-export const createInventoryItemSchema = inventoryItemSchema.extend({
-  quantity: qty.default(0),
-});
-
-export const updateInventoryItemSchema = inventoryItemSchema.partial().extend({
-  archived: z.boolean().optional(),
-});
-
-export const movementSchema = z.object({
-  type: z.enum(MOVEMENT_TYPES),
-  // For ADJUSTMENT this is the counted quantity; otherwise the amount moved.
-  quantity: z.coerce.number().finite().min(0).max(1_000_000),
-  unitCost: qty.optional().nullable(),
-  note: optionalText(200),
-});
-
-export const stockCountSchema = z.object({
-  entries: z
-    .array(z.object({ itemId: z.string().min(1).max(40), counted: qty }))
-    .min(1, "Enter at least one count")
-    .max(500),
-  note: optionalText(200),
-});
-
-export const deliverySchema = z.object({
-  entries: z
-    .array(
-      z.object({
-        itemId: z.string().min(1).max(40),
-        quantity: z.coerce.number().finite().positive().max(1_000_000),
-        unitCost: qty.optional().nullable(),
-      }),
-    )
-    .min(1, "Select at least one item")
-    .max(500),
-  note: optionalText(200),
 });
 
 // --------------------------------------------------------------- canteen
@@ -155,7 +99,12 @@ export const staffOrderUpdateSchema = z.object({
 
 export const settingsSchema = z.object({
   canteenOpen: z.boolean().optional(),
-  canteenHours: trimmed(60).min(1).optional(),
+  // Must contain an opening and a closing time, e.g. "9:00 PM – 4:00 AM";
+  // otherwise the hours can't be enforced.
+  canteenHours: trimmed(60)
+    .min(1)
+    .refine((v) => parseHours(v) !== null, "Write the hours like 9:00 PM – 4:00 AM")
+    .optional(),
 });
 
 // ----------------------------------------------------------------- admin

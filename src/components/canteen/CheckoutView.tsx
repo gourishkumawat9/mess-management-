@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { ArrowLeft, Banknote, Bike, LoaderCircle, Minus, Plus, Smartphone, Store, TriangleAlert } from "lucide-react";
+import { payOnline, type CheckoutParams } from "@/lib/razorpayCheckout";
 import { useCart } from "@/components/CartProvider";
 import { VegMark } from "@/components/VegMark";
 import { api } from "@/lib/client";
@@ -20,6 +21,7 @@ export function CheckoutView({
   userName,
   savedHostel,
   savedRoom,
+  payments,
 }: {
   menu: MenuIndex;
   open: boolean;
@@ -27,11 +29,13 @@ export function CheckoutView({
   userName: string;
   savedHostel: string | null;
   savedRoom: string | null;
+  payments: { online: boolean; counter: boolean };
 }) {
   const router = useRouter();
   const cart = useCart();
   const [note, setNote] = useState("");
-  const [payment, setPayment] = useState<PaymentMethod>("UPI");
+  const [payment, setPayment] = useState<PaymentMethod>(payments.online ? "ONLINE" : "COUNTER");
+  const noPayment = !payments.online && !payments.counter;
   const [fulfilment, setFulfilment] = useState<Fulfilment>("DELIVERY");
   const [hostel, setHostel] = useState(savedHostel ?? "");
   const [room, setRoom] = useState(savedRoom ?? "");
@@ -54,7 +58,7 @@ export function CheckoutView({
     setPlacing(true);
     setError(null);
     try {
-      const { order } = await api<{ order: { id: string } }>("/api/orders", {
+      const { order, checkout } = await api<{ order: { id: string }; checkout: CheckoutParams | null }>("/api/orders", {
         body: {
           items: cart.lines.map((l) => ({ menuItemId: l.menuItemId, quantity: l.quantity })),
           paymentMethod: payment,
@@ -65,6 +69,15 @@ export function CheckoutView({
         },
       });
       cart.clear();
+      if (checkout) {
+        // The order exists but the kitchen only sees it once the payment is
+        // confirmed. If the window is closed, the order page offers "Pay now".
+        try {
+          await payOnline(order.id, checkout, "IIM Sambalpur Canteen");
+        } catch {
+          // The order page shows the real payment state.
+        }
+      }
       router.push(`/orders/${order.id}?placed=1`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not place the order");
@@ -213,14 +226,25 @@ export function CheckoutView({
       </section>
 
       <section className="card mt-4 p-4">
-        <p className="label">{delivery ? "Payment on delivery" : "Payment at the counter"}</p>
+        <p className="label">Payment</p>
+        {noPayment ? (
+          <p className="text-sm text-red-700">Payments aren&apos;t set up yet, so orders can&apos;t be placed. Please tell the canteen.</p>
+        ) : (
         <div className="grid grid-cols-2 gap-3">
           {(
             [
-              { id: "UPI", label: "UPI", hint: delivery ? "Scan the QR on delivery" : "Scan the QR at pickup", Icon: Smartphone },
-              { id: "CASH", label: "Cash", hint: delivery ? "Pay when it arrives" : "Pay when you collect", Icon: Banknote },
+              { id: "ONLINE", label: "Pay now", hint: "UPI, card or wallet, in the app", Icon: Smartphone, show: payments.online },
+              {
+                id: "COUNTER",
+                label: delivery ? "Pay on delivery" : "Pay at counter",
+                hint: delivery ? "Cash or UPI when it arrives" : "Cash or UPI when you collect",
+                Icon: Banknote,
+                show: payments.counter,
+              },
             ] as const
-          ).map(({ id, label, hint, Icon }) => (
+          )
+            .filter((o) => o.show)
+            .map(({ id, label, hint, Icon }) => (
             <button
               key={id}
               type="button"
@@ -239,6 +263,7 @@ export function CheckoutView({
             </button>
           ))}
         </div>
+        )}
       </section>
 
       <section className="card mt-4 p-4">
@@ -269,11 +294,11 @@ export function CheckoutView({
       <div className="sticky bottom-0 -mx-4 mt-6 bg-gradient-to-t from-cream-100 via-cream-100 to-cream-100/0 px-4 pb-4 pt-6 sm:-mx-6 sm:px-6">
         <button
           onClick={placeOrder}
-          disabled={placing || !open || unavailable.length > 0 || addressMissing}
+          disabled={placing || !open || noPayment || unavailable.length > 0 || addressMissing}
           className="btn-primary w-full rounded-2xl py-4 text-base shadow-xl shadow-brand-600/20"
         >
           {placing ? <LoaderCircle className="h-5 w-5 animate-spin" /> : null}
-          {placing ? "Placing order…" : `Place order · ₹${cart.total}`}
+          {placing ? "Placing order…" : payment === "ONLINE" ? `Pay ₹${cart.total} & place order` : `Place order · ₹${cart.total}`}
         </button>
         <p className="mt-2 text-center text-xs text-zinc-500">
           {addressMissing ? "Enter your hostel and room number for delivery" : `Ordering as ${userName}`}
