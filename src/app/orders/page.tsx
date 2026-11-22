@@ -13,14 +13,15 @@ export const metadata: Metadata = { title: "My orders" };
 export default async function MyOrdersPage() {
   const user = await requirePageUser(undefined, "/orders");
   const orders = await listMyOrders(user.id);
-  const active = orders.filter((o) => ACTIVE_STATUSES.includes(o.status as OrderStatus));
-  const past = orders.filter((o) => !ACTIVE_STATUSES.includes(o.status as OrderStatus));
+  const inProgress = (o: (typeof orders)[number]) => o.status === "AWAITING_PAYMENT" || ACTIVE_STATUSES.includes(o.status as OrderStatus);
+  const active = orders.filter(inProgress);
+  const past = orders.filter((o) => !inProgress(o));
 
   const OrderCard = ({ order }: { order: (typeof orders)[number] }) => (
     <Link href={`/orders/${order.id}`} className="card card-hover flex items-center gap-4 p-4">
       <div className="flex h-16 w-16 shrink-0 -rotate-3 flex-col items-center justify-center rounded-2xl border-2 border-ink bg-gold-400 text-ink">
         <span className="text-[10px] font-semibold uppercase">Token</span>
-        <span className="font-display text-2xl leading-none">{order.token}</span>
+        <span className="font-display text-2xl leading-none">{order.token > 0 ? order.token : "–"}</span>
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">

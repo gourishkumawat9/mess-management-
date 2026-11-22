@@ -10,6 +10,13 @@ if (!process.env.DATABASE_URL) {
   process.exit(0);
 }
 
+// Preview deployments (pull requests) share the production database here, so
+// they must never change it: only production builds migrate and seed.
+if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
+  console.log(`Skipping database migrations on a ${process.env.VERCEL_ENV} build (the database is shared with production).`);
+  process.exit(0);
+}
+
 // Migrations need a direct (unpooled) connection; fall back to DATABASE_URL.
 const env = { ...process.env, DATABASE_URL_UNPOOLED: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL };
 const run = (cmd) => execSync(cmd, { stdio: "inherit", env });

@@ -20,7 +20,7 @@ model User {
   email        String   @unique
   phone        String?
   passwordHash String
-  role         String   @default("USER") // USER | CANTEEN | MESS | STAFF | ADMIN
+  role         String   @default("USER") // USER | CANTEEN | ADMIN
   hostel       String? // remembered delivery address, filled at sign-up or checkout
   room         String?
   active       Boolean  @default(true)
@@ -32,6 +32,9 @@ model User {
 }
 
 // ---------------------------------------------------------------- Inventory
+// No longer used: inventory management was removed from the app. The tables
+// are kept so existing rows aren't deleted by a migration; nothing reads or
+// writes them.
 
 model InventoryItem {
   id              String    @id @default(cuid())
@@ -107,25 +110,34 @@ model MenuItem {
 }
 
 model Order {
-  id             String    @id @default(cuid())
-  token          Int // daily counter number called out at pickup
-  userId         String
-  status         String    @default("PLACED") // PLACED | PREPARING | READY | COMPLETED | CANCELLED
-  total          Int
-  paymentMethod  String // CASH | UPI (paid at the counter)
-  isPaid         Boolean   @default(false)
-  note           String?
-  fulfilment     String    @default("PICKUP") // PICKUP | DELIVERY
+  id                String    @id @default(cuid())
+  token             Int // daily counter number called out at pickup; 0 until an online order is paid
+  userId            String
+  // AWAITING_PAYMENT (online order not paid yet; the kitchen never sees it)
+  // | PLACED | PREPARING | READY | COMPLETED | CANCELLED
+  status            String    @default("PLACED")
+  total             Int // whole rupees, always computed on the server
+  paymentMethod     String // ONLINE (Razorpay) | COUNTER (cash/UPI at the counter). Older rows: CASH | UPI
+  isPaid            Boolean   @default(false)
+  // Online payments (Razorpay). Only the server sets these, after checking
+  // the payment with Razorpay itself.
+  razorpayOrderId   String?   @unique
+  razorpayPaymentId String?   @unique
+  paidAt            DateTime?
+  refundId          String?
+  refundStatus      String? // PENDING | PROCESSED | FAILED
+  note              String?
+  fulfilment        String    @default("PICKUP") // PICKUP | DELIVERY
   // Delivery address copied at order time; null for pickup orders.
-  deliveryHostel String?
-  deliveryRoom   String?
-  cancelReason   String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  preparingAt    DateTime?
-  readyAt        DateTime?
-  completedAt    DateTime?
-  cancelledAt    DateTime?
+  deliveryHostel    String?
+  deliveryRoom      String?
+  cancelReason      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  preparingAt       DateTime?
+  readyAt           DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
 
   user  User        @relation(fields: [userId], references: [id])
   items OrderItem[]

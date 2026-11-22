@@ -29,7 +29,25 @@ export function CanteenToggle({ open: initial, hours, inHours = true }: { open: 
     }
   }
 
+  async function editHours() {
+    const text = window.prompt(
+      "Ordering hours (India time), e.g. 9:00 PM – 4:00 AM. Use 12:00 AM – 12:00 AM for all day.",
+      hours ?? "",
+    );
+    if (text === null || !text.trim()) return;
+    setBusy(true);
+    try {
+      await api("/api/settings", { method: "PATCH", body: { canteenHours: text.trim() } });
+      router.refresh();
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : "Could not update");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
+    <div className="flex flex-col items-start gap-1.5 sm:items-end">
     <button
       onClick={toggle}
       disabled={busy}
@@ -44,5 +62,11 @@ export function CanteenToggle({ open: initial, hours, inHours = true }: { open: 
       </span>
       {!open ? "Canteen closed" : inHours ? "Canteen open for orders" : `On · orders start ${hours?.split("–")[0]?.trim() ?? "at opening time"}`}
     </button>
+    {hours && (
+      <button onClick={editHours} disabled={busy} className="text-xs font-semibold underline decoration-dotted underline-offset-2 opacity-80 hover:opacity-100">
+        Ordering hours: {hours} · change
+      </button>
+    )}
+    </div>
   );
 }

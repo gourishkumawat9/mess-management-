@@ -26,7 +26,7 @@ describe("order status flow", () => {
   });
 
   it("lets customers cancel only before cooking starts", () => {
-    expect(ORDER_STATUSES.filter(customerCanCancel)).toEqual(["PLACED"]);
+    expect(ORDER_STATUSES.filter(customerCanCancel)).toEqual(["AWAITING_PAYMENT", "PLACED"]);
   });
 
   it("stamps the time of each step", () => {

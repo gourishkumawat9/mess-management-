@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { ArrowLeft, Bike, Check, ChefHat, CircleX, Package, PartyPopper, Receipt, Store } from "lucide-react";
+import { ArrowLeft, Bike, Check, ChefHat, CircleX, CreditCard, Package, PartyPopper, Receipt, Store } from "lucide-react";
 import { VegMark } from "@/components/VegMark";
 import { api } from "@/lib/client";
+import { payOnline, type CheckoutParams } from "@/lib/razorpayCheckout";
 import type { OrderStatus } from "@/lib/constants";
 import { formatDateTime, formatTime } from "@/lib/format";
 import { ACTIVE_STATUSES, ORDER_STATUS_META, TRACKING_STEPS, customerCanCancel } from "@/lib/orders";
@@ -19,6 +20,7 @@ export interface TrackedOrder {
   total: number;
   paymentMethod: string;
   isPaid: boolean;
+  refundStatus: string | null;
   note: string | null;
   fulfilment: string;
   deliveryHostel: string | null;
@@ -40,11 +42,13 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
   const [order, setOrder] = useState(initial);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
   const isActive = ACTIVE_STATUSES.includes(order.status);
+  const awaitingPayment = order.status === "AWAITING_PAYMENT";
 
-  // Poll while the order is in progress.
+  // Poll while the order is in progress (or a payment may be confirming).
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive && !awaitingPayment) return;
     const t = setInterval(async () => {
       try {
         const data = await api<{ order: TrackedOrder }>(`/api/orders/${order.id}`);
@@ -54,7 +58,22 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
       }
     }, 5000);
     return () => clearInterval(t);
-  }, [isActive, order.id]);
+  }, [isActive, awaitingPayment, order.id]);
+
+  async function payNow() {
+    setPaying(true);
+    setError(null);
+    try {
+      const { checkout } = await api<{ checkout: CheckoutParams }>(`/api/orders/${order.id}/pay`, { body: {} });
+      await payOnline(order.id, checkout, "IIM Sambalpur Canteen");
+      const data = await api<{ order: TrackedOrder }>(`/api/orders/${order.id}`);
+      setOrder(data.order);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Payment could not be completed");
+    } finally {
+      setPaying(false);
+    }
+  }
 
   async function cancel() {
     if (!window.confirm("Cancel this order?")) return;
@@ -116,10 +135,12 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
             <h1 className="display mt-1 text-5xl sm:text-6xl">{meta.hint}</h1>
             <p className="mt-2 text-sm text-white/80">Placed {formatDateTime(order.createdAt)}</p>
           </div>
+          {order.token > 0 && (
           <div className="shrink-0 rotate-3 rounded-3xl border-2 border-ink bg-gold-400 px-5 py-4 text-center text-ink shadow-hard">
             <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-ink/70">Token</p>
             <p className="font-display text-6xl leading-none">{order.token}</p>
           </div>
+          )}
         </div>
         {order.status === "READY" && (
           <p className="mt-5 rounded-2xl border-2 border-white/40 bg-white/10 p-3 text-sm font-semibold">
@@ -131,9 +152,23 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
         {order.status === "CANCELLED" && order.cancelReason && (
           <p className="mt-4 rounded-2xl bg-white/10 p-3 text-sm">Reason: {order.cancelReason}</p>
         )}
+        {order.refundStatus && (
+          <p className="mt-3 rounded-2xl bg-white/10 p-3 text-sm">
+            {order.refundStatus === "PROCESSED"
+              ? "Your payment has been refunded. It can take 5–7 working days to show in your account."
+              : order.refundStatus === "FAILED"
+                ? "We couldn't refund your payment automatically. Please show this page at the canteen counter."
+                : "Your refund has been started. It can take 5–7 working days to show in your account."}
+          </p>
+        )}
+        {awaitingPayment && (
+          <button onClick={payNow} disabled={paying} className="btn-secondary mt-5 w-full">
+            <CreditCard className="h-4 w-4" /> {paying ? "Opening payment…" : `Pay ₹${order.total} now`}
+          </button>
+        )}
       </section>
 
-      {order.status !== "CANCELLED" && (
+      {order.status !== "CANCELLED" && !awaitingPayment && (
         <section className="card mt-4 p-5">
           <ol className="relative">
             {TRACKING_STEPS.map((step, i) => {
@@ -193,7 +228,9 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
           <span>₹{order.total}</span>
         </div>
         <p className="mt-1 text-xs text-zinc-500">
-          Pay by {order.paymentMethod === "UPI" ? "UPI" : "cash"} {delivery ? "on delivery" : "at the counter"} · {order.isPaid ? "Paid ✓" : "Not paid yet"}
+          {order.paymentMethod === "ONLINE"
+            ? `Online payment · ${order.isPaid ? "Paid ✓" : "Not paid yet"}`
+            : `Pay by cash or UPI ${delivery ? "on delivery" : "at the counter"} · ${order.isPaid ? "Paid ✓" : "Not paid yet"}`}
         </p>
       </section>
 
@@ -203,7 +240,7 @@ export function OrderTracker({ initial, justPlaced }: { initial: TrackedOrder; j
           <CircleX className="h-4 w-4" /> {cancelling ? "Cancelling…" : "Cancel order"}
         </button>
       )}
-      {!isActive && (
+      {!isActive && !awaitingPayment && (
         <Link href="/" className="btn-secondary mt-4 w-full">
           Order something else
         </Link>

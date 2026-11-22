@@ -3,25 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { Boxes, ClipboardCheck, ClipboardList, LayoutDashboard, Truck, Users, UtensilsCrossed } from "lucide-react";
-import { CANTEEN_ROLES, MESS_ROLES, ROLE_LABELS, hasRole, type Role } from "@/lib/constants";
+import { ClipboardList, LayoutDashboard, Users, UtensilsCrossed } from "lucide-react";
+import { CANTEEN_ROLES, ROLE_LABELS, hasRole, type Role } from "@/lib/constants";
 
-// Each team only sees its own pages; the owner (ADMIN) sees all of them.
+// Canteen staff see the canteen pages; the owner (ADMIN) also sees Users & roles.
 const LINKS: { href: string; label: string; Icon: typeof Users; exact?: boolean; roles?: Role[] }[] = [
   { href: "/staff", label: "Dashboard", Icon: LayoutDashboard, exact: true },
   { href: "/staff/orders", label: "Live orders", Icon: ClipboardList, roles: CANTEEN_ROLES },
   { href: "/staff/menu", label: "Canteen menu", Icon: UtensilsCrossed, roles: CANTEEN_ROLES },
-  { href: "/staff/inventory", label: "Inventory", Icon: Boxes, roles: MESS_ROLES },
-  { href: "/staff/inventory/count", label: "Daily stock count", Icon: ClipboardCheck, roles: MESS_ROLES },
-  { href: "/staff/inventory/restock", label: "Restock list", Icon: Truck, roles: MESS_ROLES },
   { href: "/staff/users", label: "Users & roles", Icon: Users, roles: ["ADMIN"] },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {
   if (exact) return pathname === href;
-  if (href === "/staff/inventory") {
-    return pathname === href || (pathname.startsWith(`${href}/`) && !/\/(count|restock)$/.test(pathname));
-  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
