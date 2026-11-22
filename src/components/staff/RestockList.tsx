@@ -74,14 +74,14 @@ export function RestockList({ items, generatedAt }: { items: InventoryRowData[];
       {groups.length === 0 ? (
         <div className="card mt-6 p-10 text-center">
           <p className="text-4xl">✅</p>
-          <p className="mt-2 font-semibold text-zinc-900">Nothing needs restocking right now</p>
+          <p className="mt-2 font-semibold text-ink">Nothing needs restocking right now</p>
           <p className="text-sm text-zinc-500">Tick “Show all items” to order something anyway.</p>
         </div>
       ) : (
         <div className="mt-6 space-y-4">
           {groups.map((g) => (
             <section key={g.id} className="card overflow-hidden print:shadow-none print:ring-0">
-              <h2 className="flex items-center gap-2 border-b border-zinc-100 px-4 py-3 font-bold text-zinc-900">
+              <h2 className="flex items-center gap-2 border-b border-zinc-100 px-4 py-3 font-bold text-ink">
                 <span>{g.emoji}</span> {g.label}
               </h2>
               <ul className="divide-y divide-zinc-100">
@@ -95,7 +95,7 @@ export function RestockList({ items, generatedAt }: { items: InventoryRowData[];
                       aria-label={`Received ${item.name}`}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-zinc-900">{item.name}</p>
+                      <p className="font-semibold text-ink">{item.name}</p>
                       <p className="text-xs text-zinc-500">
                         Have {formatQty(item.quantity, item.unit)} · lasts {formatDays(item.insight.daysLeft)}
                         {item.supplier ? ` · ${item.supplier}` : ""}
@@ -128,7 +128,7 @@ export function RestockList({ items, generatedAt }: { items: InventoryRowData[];
 
       <div className="sticky bottom-4 mt-6 flex flex-col gap-3 rounded-2xl bg-white/95 p-3 shadow-xl ring-1 ring-black/5 backdrop-blur sm:flex-row sm:items-center sm:justify-between print:static print:shadow-none">
         <div className="px-2 text-sm">
-          <p className="font-semibold text-zinc-900">Estimated cost of this list: {rupees(Math.round(estimate))}</p>
+          <p className="font-semibold text-ink">Estimated cost of this list: {rupees(Math.round(estimate))}</p>
           {message ? (
             <p className={clsx("mt-0.5 flex items-center gap-1.5", message.ok ? "text-emerald-700" : "text-red-700")}>
               {message.ok && <CircleCheck className="h-4 w-4" />} {message.text}

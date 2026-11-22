@@ -48,6 +48,12 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   };
 }
 
+/** True when the visitor is on a read-only presentation demo session. */
+export async function viewerIsDemo() {
+  const claims = await verifySession((await cookies()).get(SESSION_COOKIE)?.value);
+  return claims?.demo === true;
+}
+
 export function isStaff(user: Pick<CurrentUser, "role"> | null) {
   return hasRole(user?.role, STAFF_ROLES);
 }

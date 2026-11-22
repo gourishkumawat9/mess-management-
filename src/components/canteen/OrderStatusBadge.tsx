@@ -3,8 +3,8 @@ import type { OrderStatus } from "@/lib/constants";
 import { ORDER_STATUS_META } from "@/lib/orders";
 
 const STYLES: Record<OrderStatus, string> = {
-  PLACED: "bg-sky-50 text-sky-700 ring-sky-200",
-  PREPARING: "bg-amber-50 text-amber-700 ring-amber-200",
+  PLACED: "bg-brand-50 text-brand-700 ring-brand-200",
+  PREPARING: "bg-gold-100 text-amber-800 ring-gold-300",
   READY: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   COMPLETED: "bg-zinc-100 text-zinc-600 ring-zinc-200",
   CANCELLED: "bg-red-50 text-red-600 ring-red-200",

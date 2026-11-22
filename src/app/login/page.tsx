@@ -13,7 +13,7 @@ export default function LoginPage() {
         <AuthForm mode="login" domains={allowedEmailDomains()} />
       </Suspense>
       {process.env.NODE_ENV !== "production" && (
-        <div className="mt-6 rounded-xl bg-zinc-50 p-3 text-xs text-zinc-500 ring-1 ring-zinc-200">
+        <div className="mt-6 rounded-2xl bg-zinc-50 p-3 text-xs text-zinc-500 ring-1 ring-zinc-200">
           <p className="font-semibold text-zinc-700">Demo accounts (development only)</p>
           <p className="mt-1">admin@iimsambalpur.ac.in · staff@iimsambalpur.ac.in · student@iimsambalpur.ac.in</p>
           <p>Passwords are the SEED_*_PASSWORD values in your .env.</p>

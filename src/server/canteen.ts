@@ -1,7 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/api";
-import type { CurrentUser } from "@/lib/auth";
+import { viewerIsDemo, type CurrentUser } from "@/lib/auth";
+import { redactContact } from "@/lib/demo";
 import {
   DEFAULT_CANTEEN_HOURS,
   MAX_ACTIVE_ORDERS_PER_USER,
@@ -12,6 +13,7 @@ import {
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/constants";
+import { isWithinHours } from "@/lib/hours";
 import {
   ACTIVE_STATUSES,
   canTransition,
@@ -24,15 +26,19 @@ import {
 
 // ---------------------------------------------------------------- settings
 
+/**
+ * `switchOn` is the staff open/closed switch. `open` (taking orders now) also
+ * needs the current India time to be inside the canteen timings.
+ */
 export async function getCanteenSettings() {
   const rows = await prisma.setting.findMany({
     where: { key: { in: [SETTINGS.canteenOpen, SETTINGS.canteenHours] } },
   });
   const value = (key: string) => rows.find((r) => r.key === key)?.value;
-  return {
-    open: value(SETTINGS.canteenOpen) !== "false",
-    hours: value(SETTINGS.canteenHours) ?? DEFAULT_CANTEEN_HOURS,
-  };
+  const switchOn = value(SETTINGS.canteenOpen) !== "false";
+  const hours = value(SETTINGS.canteenHours) ?? DEFAULT_CANTEEN_HOURS;
+  const inHours = isWithinHours(hours, new Date());
+  return { open: switchOn && inHours, switchOn, inHours, hours };
 }
 
 export async function updateCanteenSettings(input: { canteenOpen?: boolean; canteenHours?: string }) {
@@ -163,7 +169,7 @@ export async function getOrderFor(user: CurrentUser, id: string) {
   const order = await prisma.order.findUnique({ where: { id }, include: orderInclude });
   if (!order) return null;
   if (order.userId !== user.id && !hasRole(user.role, CANTEEN_ROLES)) return null;
-  return order;
+  return (await viewerIsDemo()) ? { ...order, user: redactContact(order.user) } : order;
 }
 
 export async function cancelByCustomer(user: CurrentUser, id: string) {
@@ -195,6 +201,10 @@ export async function listStaffOrders(now = new Date()) {
       include: orderInclude,
     }),
   ]);
+  if (await viewerIsDemo()) {
+    const hide = <O extends { user: { email: string; phone: string | null } }>(o: O) => ({ ...o, user: redactContact(o.user) });
+    return { active: active.map(hide), done: done.map(hide) };
+  }
   return { active, done };
 }
 

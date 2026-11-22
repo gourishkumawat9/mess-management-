@@ -18,7 +18,7 @@ export function StockBadge({ status, className }: { status: StockStatus; classNa
 
 export function ExpiryBadge() {
   return (
-    <span className="inline-flex items-center whitespace-nowrap rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-semibold text-violet-700 ring-1 ring-violet-200">
+    <span className="inline-flex items-center whitespace-nowrap rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 ring-1 ring-gold-300">
       Check freshness
     </span>
   );

@@ -160,7 +160,7 @@ export function ItemForm({
           <label className="label" htmlFor="i-notes">Notes</label>
           <textarea id="i-notes" rows={2} value={f.notes} onChange={set("notes")} className="input resize-none" />
         </div>
-        {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">{error}</p>}
+        {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">{error}</p>}
         <div className="flex gap-2 sm:col-span-2">
           {item && (
             <button type="button" onClick={archive} disabled={saving} className="btn-danger">

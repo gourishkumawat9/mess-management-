@@ -84,7 +84,7 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
         {stats.map((s) => (
           <div key={s.label} className="card p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{s.label}</p>
-            <p className={clsx("mt-1 text-xl font-extrabold", s.value === "Now" ? "text-red-600" : "text-zinc-900")}>{s.value}</p>
+            <p className={clsx("mt-1 text-xl font-extrabold", s.value === "Now" ? "text-red-600" : "text-ink")}>{s.value}</p>
             <p className="mt-0.5 text-xs text-zinc-500">{s.hint}</p>
           </div>
         ))}
@@ -112,7 +112,7 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
       </div>
 
       <section className="card mt-6 overflow-hidden">
-        <h2 className="border-b border-zinc-100 p-4 font-bold text-zinc-900">Stock history</h2>
+        <h2 className="border-b border-zinc-100 p-4 font-bold text-ink">Stock history</h2>
         {item.movements.length === 0 ? (
           <p className="p-6 text-center text-sm text-zinc-500">No stock changes recorded yet.</p>
         ) : (
